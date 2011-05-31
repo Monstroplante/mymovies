@@ -18,6 +18,7 @@ namespace MyMovies.Core
         public double? ImdbRating;
         public String ImgUrl;
         public DateTime DateAdded;
+        public int? Duration;
 
         public Movie()
         {
@@ -42,6 +43,8 @@ namespace MyMovies.Core
         {
             Genres = infos.genres.ToList();
             ImdbRating = infos.rating;
+            if (infos.runtime != null)
+                Duration = infos.runtime.time;
         }
     }
 }
