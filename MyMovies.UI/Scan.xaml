@@ -1,0 +1,46 @@
+﻿<Window x:Class="MyMovies.Scan"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:U2UConsult"
+    xmlns:c="clr-namespace:MyMovies"
+    Title="Scan" Height="465" Width="664" MinHeight="300" MinWidth="500">
+    <Window.Resources>
+
+        <!--Usefull to display ample data for designer mode-->
+        <c:TestMovieProvider x:Key="TestMovieProvider"/>
+
+        <!--AlbumItemTemplate-->
+        <DataTemplate x:Key="MovieItemTemplate">
+            <Border Padding="10" BorderBrush="LightGray" BorderThickness="0,0,0,1" HorizontalAlignment="Stretch">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Image Grid.Column="0" Margin="2" Stretch="UniformToFill" Width="100" Height="Auto" Source="{Binding Path=image.url}" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                        <TextBlock Text="{Binding TitleYear}" FontSize="20" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding PrincipalsString}"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0" >
+                            <Button Height="23" VerticalAlignment="Top" HorizontalAlignment="Left" Width="60">Select</Button>
+                            <Button Height="23" VerticalAlignment="Top" HorizontalAlignment="Left" Width="60" Margin="6,0,0,0">Dedails</Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid Background="WhiteSmoke">
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="10,25,0,0" Name="TbQuery" VerticalAlignment="Top" Width="208" />
+        <Button Height="23" Margin="224,24.2,0,0" Name="BtSearch" VerticalAlignment="Top" HorizontalAlignment="Left" Width="60" Click="BtSearch_Click">Search</Button>
+        <local:CircularProgressBar x:Name="spinImdb" StartupDelay="0"
+                Height="16" HorizontalAlignment="Left" Margin="290,27,0,0" VerticalAlignment="Top" Width="16"/>
+        <Button Height="23" HorizontalAlignment="Right" Margin="0,25,10,0" Name="BtSkip" VerticalAlignment="Top" Width="60" Click="BtSkip_Click">Skip</Button>
+        <Button Height="23" HorizontalAlignment="Right" Margin="0,25,76,0" Name="BtIgnore" VerticalAlignment="Top" Width="60" Click="BtIgnore_Click">Ignore</Button>
+        <ScrollViewer Margin="0,58,0,0" BorderBrush="LightGray" BorderThickness="0,1,0,0" Background="White">
+            <ItemsControl Name="LvMovies" ItemTemplate="{StaticResource MovieItemTemplate}" ItemsSource="{StaticResource TestMovieProvider}" />
+        </ScrollViewer>
+        <Button Height="23" Margin="0,25,142,0" Name="BtPlay" VerticalAlignment="Top" Click="BtPlay_Click" HorizontalAlignment="Right" Width="60">Play</Button>
+        <TextBlock Margin="10,5,10,0" Name="TbFile" VerticalAlignment="Top" TextAlignment="Left" TextTrimming="CharacterEllipsis" Text="File:" />
+    </Grid>
+</Window>
