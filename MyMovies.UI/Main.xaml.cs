@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -31,6 +32,10 @@ namespace MyMovies
             InitializeComponent();
             WebServer.Start(8080);
             UpdateTitle();
+            Log.Listner = (cat, message, level) => {
+                tbLog.Text += cat + ": " + message + "\n";
+                tbLog.ScrollToEnd();                 
+            };
         }
 
         private void BtScan_Click(object sender, RoutedEventArgs e)
@@ -47,12 +52,17 @@ namespace MyMovies
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
+            var scanLog = new Log("scan");
             var directories = tbDirectories.Text.Split('\n')
                 .ConvertAll(s => s.TrimOrNull())
                 .Where(s => s != null)
                 .ToArray();
             if(directories.Length < 1)
+            {
+                scanLog.Warn("No directory to scan.");
                 return;
+            }
+                
             var w = Reactor.Run(
                 directories,
                 dirs =>
@@ -60,14 +70,28 @@ namespace MyMovies
                     var imdb = new IMDB();
                     foreach (String dir in dirs)
                     {
+                        scanLog.Info("Scanning " + dir);
                         var files = Scanner.ScanDir(dir);
+                        scanLog.Info(files.Count + " video files found");
                         foreach (var f in files)
                         {
+                            scanLog.Info("Processing " + f.Path);
                             if(DM.GetMovieByFile(f.Path) != null)
+                            {
+                                scanLog.Info("File already present in collection");
                                 continue;
-                            var m = imdb.Find(f.Title + " " + f.Year).FirstOrDefault();
+                            }
+
+                            String q = f.Title + " " + f.Year;
+                            scanLog.Info("IMDB: searching for '{0}'...", q);
+                            var m = imdb.Find(q).FirstOrDefault();
                             if (m == null)
+                            {
+                                scanLog.Info("IMDB: no result");
                                 continue;
+                            }
+                            scanLog.Info("IMDB: found {0} - {1}", m.title, m.year);
+                            scanLog.Info("IMDB: getting movie details...");
                             var detail = imdb.GetDetails(m.tconst);
 
                             var movie = new Movie();
@@ -85,7 +109,7 @@ namespace MyMovies
                     }
                     return "";
                 },
-                null, null, null);
+                null, null, (s, ex) => scanLog.Info("Scan finished"));
         }
 
         void UpdateTitle()

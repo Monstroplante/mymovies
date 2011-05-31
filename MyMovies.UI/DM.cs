@@ -12,7 +12,12 @@ namespace MyMovies.UI
     public class DM
     {
         private List<Movie> _movies;
-        private readonly String _dataFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "data.json");
+        private readonly String _dataFile = GetLocalFilePath("data.json");
+
+        public static String GetLocalFilePath(String filename)
+        {
+            return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), filename);
+        }
 
         public DM()
         {
