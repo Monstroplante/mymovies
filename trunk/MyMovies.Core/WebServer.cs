@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Web;
 using Kayak;
 using Kayak.Http;
 using System.Net;
@@ -16,6 +17,7 @@ namespace MyMovies.Core
     {
         static Thread thread;
         static String root = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "www");
+        static Log log = new Log("www");
 
         public static bool IsRunning
         {
@@ -75,37 +77,55 @@ namespace MyMovies.Core
             public void OnRequest(HttpRequestHead request, IDataProducer requestBody,
                 IHttpResponseDelegate response)
             {
-                
+                log.Info(new[] { request.Method, request.Uri}.Join("\t"));
                 //System.Diagnostics.Processes.Start("Gobias Industries Business Plan.docx"
 
-                String uri = request.Uri;
+                String url = request.Uri;
+                var parts = url.Split(new[]{'?'}, 2);
+                String path = parts[0];
 
-                if(uri.EndsWith("/"))
-                    uri += "index.htm";
-                    
-                String file = Path.Combine(root, uri.Substring(1).Replace('/', Path.DirectorySeparatorChar));
+                if (path.EndsWith("/"))
+                    path += "index.htm";
+
+                String file = Path.Combine(root, path.Substring(1).Replace('/', Path.DirectorySeparatorChar));
                 if (File.Exists(file))
                 {
                     var ext = (Path.GetExtension(file) ?? ".").Substring(1).ToLower();
                     String contentType = ContentTypes.GetOrDefault(ext, "text/plain");
-                    using (var fs = new FileStream(file, FileMode.Open, FileAccess.Read))
-                    {
-                        byte[] data = new byte[fs.Length];
-                        fs.Read(data, 0, Convert.ToInt32(fs.Length));
 
-                        response.OnResponse(new HttpResponseHead(){
-                            Status = "200 OK",
-                            Headers = new Dictionary<string, string>() {
-                                { "Content-Type", contentType },
-                                { "Content-Length", fs.Length.ToString() },
-                            }
-                        }, new BufferedBody(data));
-                        return;
-                    }
+                    var data = new BufferedBody(File.ReadAllBytes(file));
+
+                    response.OnResponse(new HttpResponseHead(){
+                        Status = "200 OK",
+                        Headers = new Dictionary<string, string>() {
+                            { "Content-Type", contentType },
+                            { "Content-Length", data.Length.ToString() },
+                        }
+                    }, data);
+                    return;
+                }
+
+                var o = HttpUtility.ParseQueryString(parts.GetOrDefault(1) ?? "");
+                if(path == "/*movies")
+                {
+                    var json = DM.Instance.GetJson();
+                    var jsonp = o["jsonp"];
+                    if (!jsonp.IsNullOrEmpty())
+                        json = String.Format("{0}({1})", jsonp, json);
+
+                    var data = new BufferedBody(json);
+                    response.OnResponse(new HttpResponseHead{
+                        Status = "200 OK",
+                        Headers = new Dictionary<string, string>{
+                            { "Content-Type", "application/x-javascript; charset=utf-8" },
+                            { "Content-Length", data.Length.ToString() },
+                        }
+                    }, data);
+                    return;
                 }
 
                 //404
-                var responseBody = "The resource you requested ('" + request.Uri + "') could not be found.";
+                var responseBody = "The resource you requested ('" + path + "') could not be found.";
                 response.OnResponse(new HttpResponseHead()
                 {
                     Status = "404 Not Found",
@@ -119,12 +139,11 @@ namespace MyMovies.Core
 
         class BufferedBody : IDataProducer
         {
-            ArraySegment<byte> data;
+            byte[] data;
+            public int Length { get { return data.Length; } }
 
-            public BufferedBody(string data) : this(data, Encoding.UTF8) { }
-            public BufferedBody(string data, Encoding encoding) : this(encoding.GetBytes(data)) { }
-            public BufferedBody(byte[] data) : this(new ArraySegment<byte>(data)) { }
-            public BufferedBody(ArraySegment<byte> data)
+            public BufferedBody(string data) : this(Encoding.UTF8.GetBytes(data)) { }
+            public BufferedBody(byte[] data)
             {
                 this.data = data;
             }
@@ -132,7 +151,7 @@ namespace MyMovies.Core
             public IDisposable Connect(IDataConsumer channel)
             {
                 // null continuation, consumer must swallow the data immediately.
-                channel.OnData(data, null);
+                channel.OnData(new ArraySegment<byte>(data), null);
                 channel.OnEnd();
                 return null;
             }
