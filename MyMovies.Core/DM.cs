@@ -5,12 +5,12 @@ using System.Text;
 using System.Reflection;
 using System.IO;
 using System.Web.Script.Serialization;
-using MyMovies.Core;
 
-namespace MyMovies.UI
+namespace MyMovies.Core
 {
     public class DM
     {
+        private static DM instance;
         private List<Movie> _movies;
         private readonly String _dataFile = GetLocalFilePath("data.json");
 
@@ -19,7 +19,12 @@ namespace MyMovies.UI
             return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), filename);
         }
 
-        public DM()
+        public static DM Instance
+        {
+            get { return instance ?? (instance = new DM()); }
+        }
+
+        private DM()
         {
             if (File.Exists(_dataFile))
             {
@@ -37,7 +42,15 @@ namespace MyMovies.UI
         {
             lock (_movies)
             {
-                File.WriteAllText(_dataFile, new JavaScriptSerializer().Serialize(_movies), Encoding.UTF8);
+                File.WriteAllText(_dataFile, GetJson(), Encoding.UTF8);
+            }
+        }
+
+        public String GetJson()
+        {
+            lock (_movies)
+            {
+                return new JavaScriptSerializer().Serialize(_movies);
             }
         }
 

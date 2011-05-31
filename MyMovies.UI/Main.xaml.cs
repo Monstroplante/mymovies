@@ -25,7 +25,7 @@ namespace MyMovies
     /// </summary>
     public partial class Window1 : Window
     {
-        DM DM = new DM();
+        DM DM = DM.Instance;
 
         public Window1()
         {
