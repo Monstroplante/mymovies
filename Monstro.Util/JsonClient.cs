@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Net;
@@ -19,12 +20,16 @@ namespace Monstro.Util
 
         protected T Request<T>(String url)
         {
-            var rrq = (HttpWebRequest)WebRequest.Create(url);
-            rrq.KeepAlive = false;
-            rrq.UserAgent = UserAgent;
+            var q = (HttpWebRequest)WebRequest.Create(url);
+            q.KeepAlive = false;
+            q.UserAgent = UserAgent;
+            q.Headers["Accept-Encoding"] = "gzip";
 
-            var rrs = (HttpWebResponse)rrq.GetResponse();
-            var content = new StreamReader(rrs.GetResponseStream(), Encoding.UTF8).ReadToEnd();
+            var r = (HttpWebResponse)q.GetResponse();
+            var s = r.ContentEncoding == "gzip"
+                ? new GZipStream(r.GetResponseStream(), CompressionMode.Decompress)
+                : r.GetResponseStream();
+            var content = new StreamReader(s, Encoding.UTF8).ReadToEnd();
             return new JavaScriptSerializer().Deserialize<T>(content);
         }
     }
