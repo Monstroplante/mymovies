@@ -62,7 +62,7 @@
     <Compile Include="IMDB\JsonFind.cs" />
     <Compile Include="IMDB\IMDB.cs" />
     <Compile Include="IMDB\JsonMainDetails.cs" />
-    <Compile Include="Logger.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="Movie.cs" />
     <Compile Include="MovieInfos.cs" />
     <Compile Include="Scanner.cs" />
