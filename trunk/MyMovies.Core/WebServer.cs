@@ -78,11 +78,10 @@ namespace MyMovies.Core
                 IHttpResponseDelegate response)
             {
                 log.Info(new[] { request.Method, request.Uri}.Join("\t"));
-                //System.Diagnostics.Processes.Start("Gobias Industries Business Plan.docx"
 
                 String url = request.Uri;
                 var parts = url.Split(new[]{'?'}, 2);
-                String path = parts[0];
+                String path = HttpUtility.UrlDecode(parts[0]);
 
                 if (path.EndsWith("/"))
                     path += "index.htm";
@@ -93,15 +92,7 @@ namespace MyMovies.Core
                     var ext = (Path.GetExtension(file) ?? ".").Substring(1).ToLower();
                     String contentType = ContentTypes.GetOrDefault(ext, "text/plain");
 
-                    var data = new BufferedBody(File.ReadAllBytes(file));
-
-                    response.OnResponse(new HttpResponseHead(){
-                        Status = "200 OK",
-                        Headers = new Dictionary<string, string>() {
-                            { "Content-Type", contentType },
-                            { "Content-Length", data.Length.ToString() },
-                        }
-                    }, data);
+                    DoResponse(request, response, contentType, File.ReadAllBytes(file));
                     return;
                 }
 
@@ -113,36 +104,39 @@ namespace MyMovies.Core
                     if (!jsonp.IsNullOrEmpty())
                         json = String.Format("{0}({1})", jsonp, json);
 
-                    var data = new BufferedBody(json);
-                    response.OnResponse(new HttpResponseHead{
-                        Status = "200 OK",
-                        Headers = new Dictionary<string, string>{
-                            { "Content-Type", "application/x-javascript; charset=utf-8" },
-                            { "Content-Length", data.Length.ToString() },
-                        }
-                    }, data);
+                    DoResponse(request, response, "application/x-javascript; charset=utf-8", json);
                     return;
                 }
 
                 //404
-                var responseBody = "The resource you requested ('" + path + "') could not be found.";
-                response.OnResponse(new HttpResponseHead()
-                {
-                    Status = "404 Not Found",
-                    Headers = new Dictionary<string, string>(){
-                            { "Content-Type", "text/plain" },
-                            { "Content-Length", responseBody.Length.ToString() }
-                        }
-                }, new BufferedBody(responseBody));
+                DoResponse(request, response, "text/plain",
+                    "The resource you requested ('" + path + "') could not be found.");
             }
+        }
+
+        private static void DoResponse(HttpRequestHead request, IHttpResponseDelegate response, String contentType, byte[] data)
+        {
+            var body = new BufferedBody(data);
+            var headers = new Dictionary<string, string>{
+                { "Content-Type", contentType },
+                { "Content-Length", body.Length.ToString() },
+            };
+            response.OnResponse(new HttpResponseHead
+            {
+                Status = "200 OK",
+                Headers = headers
+            }, body);
+        }
+
+        private static void DoResponse(HttpRequestHead request, IHttpResponseDelegate response, String contentType, String data)
+        {
+            DoResponse(request, response, contentType, Encoding.UTF8.GetBytes(data));
         }
 
         class BufferedBody : IDataProducer
         {
             byte[] data;
             public int Length { get { return data.Length; } }
-
-            public BufferedBody(string data) : this(Encoding.UTF8.GetBytes(data)) { }
             public BufferedBody(byte[] data)
             {
                 this.data = data;
