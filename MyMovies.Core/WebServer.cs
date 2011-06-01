@@ -108,6 +108,13 @@ namespace MyMovies.Core
                     return;
                 }
 
+                if(path == "/*play")
+                {
+                    var f = o["f"];
+                    if (DM.Instance.GetMovieByFile(f) != null)
+                        Process.Start("Gobias Industries Business Plan.docx");
+                }
+
                 //404
                 DoResponse(request, response, "text/plain",
                     "The resource you requested ('" + path + "') could not be found.");
