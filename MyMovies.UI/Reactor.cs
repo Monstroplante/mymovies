@@ -28,7 +28,7 @@ namespace MyMovies
                     onSuccess((TResult) args.Result);
                 }
                 if (onBoth != null)
-                    onBoth(args.Result == null ? default(TResult) : (TResult) args.Result, args.Error);
+                    onBoth(args.Error != null ? default(TResult) : (TResult) args.Result, args.Error);
             };
             w.RunWorkerAsync(param);
             return w;
