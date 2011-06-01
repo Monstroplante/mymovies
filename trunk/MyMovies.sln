@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C# Express 2010
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMovies.Core", "MyMovies.Core\MyMovies.Core.csproj", "{373B43A4-082F-4015-A7E2-6138E56F6DED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMovies.Console", "MyMovies.Console\MyMovies.Console.csproj", "{3E20CB69-B1E6-478B-A17B-9612FB1744DD}"
