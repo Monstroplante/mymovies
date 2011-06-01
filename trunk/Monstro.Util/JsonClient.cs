@@ -21,6 +21,7 @@ namespace Monstro.Util
         protected T Request<T>(String url)
         {
             var q = (HttpWebRequest)WebRequest.Create(url);
+            q.Timeout = 10000;
             q.KeepAlive = false;
             q.UserAgent = UserAgent;
             q.Headers["Accept-Encoding"] = "gzip";
