@@ -33,6 +33,8 @@ namespace MyMovies
             WebServer.Start(8080);
             UpdateTitle();
             Log.Listner = (cat, message, level) => {
+                if(level < Log.Level.Info)
+                    return;
                 tbLog.Text += cat + ": " + message + "\n";
                 tbLog.ScrollToEnd();                 
             };
@@ -75,12 +77,13 @@ namespace MyMovies
                         scanLog.Info(files.Count + " video files found");
                         foreach (var f in files)
                         {
-                            scanLog.Info("Processing " + f.Path);
                             if(DM.GetMovieByFile(f.Path) != null)
                             {
-                                scanLog.Info("File already present in collection");
+                                scanLog.Debug("File already present in collection");
                                 continue;
                             }
+
+                            scanLog.Info("Processing " + f.Path);
 
                             String q = f.Title + " " + f.Year;
                             scanLog.Info("IMDB: searching for '{0}'...", q);
