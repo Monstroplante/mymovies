@@ -38,6 +38,7 @@ namespace MyMovies
                 tbLog.Text += cat + ": " + message + "\n";
                 tbLog.ScrollToEnd();                 
             };
+            btWeb.Content = WebServer.GetHomeUrl();
         }
 
         private void BtScan_Click(object sender, RoutedEventArgs e)
@@ -118,6 +119,11 @@ namespace MyMovies
         void UpdateTitle()
         {
             Title = "My movies - " + DM.CountMovies();
+        }
+
+        private void btWeb_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(WebServer.GetHomeUrl());
         }
     }
 }
