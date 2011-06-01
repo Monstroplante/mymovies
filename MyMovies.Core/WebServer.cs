@@ -11,6 +11,7 @@ using System.Net;
 using System.Threading;
 using System.IO;
 using System.Reflection;
+using Monstro.Util;
 
 namespace MyMovies.Core
 {
@@ -19,6 +20,7 @@ namespace MyMovies.Core
         static Thread thread;
         static String root = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "www");
         static Log log = new Log("www");
+        private static int Port;
 
         public static bool IsRunning
         {
@@ -40,6 +42,7 @@ namespace MyMovies.Core
 
         static public void Start(int port)
         {
+            Port = port;
             Stop();
             var scheduler = new KayakScheduler(new SchedulerDelegate());
             scheduler.Post(() =>
@@ -164,6 +167,11 @@ namespace MyMovies.Core
                 channel.OnEnd();
                 return null;
             }
+        }
+
+        public static String GetHomeUrl()
+        {
+            return String.Format("http://{0}:{1}", Network.GetLocalIp(), Port);
         }
     }
 }
