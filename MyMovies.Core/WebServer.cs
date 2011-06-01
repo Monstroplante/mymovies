@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -99,12 +100,7 @@ namespace MyMovies.Core
                 var o = HttpUtility.ParseQueryString(parts.GetOrDefault(1) ?? "");
                 if(path == "/*movies")
                 {
-                    var json = DM.Instance.GetJson();
-                    var jsonp = o["jsonp"];
-                    if (!jsonp.IsNullOrEmpty())
-                        json = String.Format("{0}({1})", jsonp, json);
-
-                    DoResponse(request, response, "application/x-javascript; charset=utf-8", json);
+                    DoJsonpResponse(request, response, o, DM.Instance.GetJson());
                     return;
                 }
 
@@ -112,13 +108,25 @@ namespace MyMovies.Core
                 {
                     var f = o["f"];
                     if (DM.Instance.GetMovieByFile(f) != null)
-                        Process.Start("Gobias Industries Business Plan.docx");
+                    {
+                        Process.Start(f);
+                        DoJsonpResponse(request, response, o, "{success:true}");
+                        return;
+                    }
                 }
 
                 //404
                 DoResponse(request, response, "text/plain",
                     "The resource you requested ('" + path + "') could not be found.");
             }
+        }
+
+        private static void DoJsonpResponse(HttpRequestHead request, IHttpResponseDelegate response, NameValueCollection o, String json)
+        {
+            var cb = o["jsonp"];
+            DoResponse(request, response, "application/x-javascript; charset=utf-8", cb.IsNullOrEmpty()
+                ? json
+                : String.Format("{0}({1})", cb, json));
         }
 
         private static void DoResponse(HttpRequestHead request, IHttpResponseDelegate response, String contentType, byte[] data)
