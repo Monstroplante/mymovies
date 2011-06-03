@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Monstro.Util;
 using MyMovies.Core;
 using Helper;
 using Helper.IMDB;
@@ -69,7 +72,8 @@ namespace MyMovies
             var w = Reactor.Run(
                 directories,
                 dirs =>
-                {
+                    {
+                    var wc = new WebClient();
                     var imdb = new IMDB();
                     foreach (String dir in dirs)
                     {
@@ -96,15 +100,27 @@ namespace MyMovies
                                     scanLog.Info("IMDB: no result");
                                     continue;
                                 }
+
+                                String cover = null;
+                                if(m.image != null && !m.image.url.IsNullOrEmpty())
+                                {
+                                    scanLog.Info("IMDB: downloading cover");
+                                    cover = Util.CleanFileName(m.image.url);
+                                    var coverDir = System.IO.Path.Combine(WebServer.RootDir, "covers");
+                                    if(!Directory.Exists(coverDir))
+                                        Directory.CreateDirectory(coverDir);
+                                    wc.DownloadFile(m.image.url, System.IO.Path.Combine(coverDir, cover));
+                                }
+
                                 scanLog.Info("IMDB: found {0} - {1}", m.title, m.year);
                                 scanLog.Info("IMDB: getting movie details...");
                                 var detail = imdb.GetDetails(m.tconst);
 
                                 var movie = new Movie();
-                                movie.Files.Add(f.Path);
-                                movie.Files.AddRange(f.Duplicated.ConvertAll(d => d.Path));
+                                movie.Files.AddRange(f.Duplicated.ConvertAll(d => d.Path).Prepend(f.Path));
                                 movie.UpdateInfos(m);
                                 movie.UpdateInfos(detail);
+                                movie.Cover = cover;
                                 DM.AddMovie(movie);
 
                                 Dispatcher.BeginInvoke(DispatcherPriority.Send, new DispatcherOperationCallback(delegate

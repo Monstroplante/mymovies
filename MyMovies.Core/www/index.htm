@@ -1,13 +1,36 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">    <head>        <title>My movies</title>        <script type="text/javascript" src="jquery-1.6.1.min.js"></script>        <link rel="stylesheet" type="text/css" href="common.css"/>        <link rel="stylesheet" type="text/css" href="dark.css"/>    </head>    <body>        <div class="movies">                    </div>        <div id="templates">            <div class="movieclassic">                <h2 class="title"></h2>                <a class="play">Play</a>                <img class="cover" />            </div>        </div>        <script type="text/javascript">
-            $(function () {				//Usefull to test/edit layout				var base = window.location.href.indexOf('file://') === 0					? 'http://localhost:8080' : '';
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>My movies</title>
+        <script type="text/javascript" src="jquery-1.6.1.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="common.css"/>
+        <link rel="stylesheet" type="text/css" href="dark.css"/>
+    </head>
+    <body>
+        <div class="movies">
+            
+        </div>
+        <div id="templates">
+            <div class="movieclassic">
+                <h2 class="title"></h2>
+                <a class="play">Play</a>
+                <img class="cover" />
+            </div>
+        </div>
+        <script type="text/javascript">
+            $(function () {
+				//Usefull to test/edit layout
+				var base = window.location.href.indexOf('file://') === 0
+					? 'http://localhost:8080' : '';
                 $.getJSON(base + '/*movies?jsonp=?', function (o) {
                     var template = $('#templates .movieclassic');
                     $.each(o, function () {
                         var m = this;
                         var e = template.clone();
-                        $('.cover', e).attr('src', m.ImgUrl || '/img/nocover.jpg');
+                        $('.cover', e).attr('src', m.Cover ? '/covers/' + m.Cover : '/img/nocover.jpg');
                         $('.title', e).text(m.Title);
                         $('.play', e).click(function () {
                             $.get(base + '/*play', { f: m.Files[0] });
@@ -15,4 +38,7 @@
                         $('.movies').append(e);
                     });
                 });
-            });        </script>    </body></html>
+            });
+        </script>
+    </body>
+</html>

@@ -18,7 +18,7 @@ namespace MyMovies.Core
     public static class WebServer
     {
         static Thread thread;
-        static String root = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "www");
+        public static String RootDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "www");
         static Log log = new Log("www");
         private static int Port;
 
@@ -90,7 +90,7 @@ namespace MyMovies.Core
                 if (path.EndsWith("/"))
                     path += "index.htm";
 
-                String file = Path.Combine(root, path.Substring(1).Replace('/', Path.DirectorySeparatorChar));
+                String file = Path.Combine(RootDir, path.Substring(1).Replace('/', Path.DirectorySeparatorChar));
                 if (File.Exists(file))
                 {
                     var ext = (Path.GetExtension(file) ?? ".").Substring(1).ToLower();

@@ -18,5 +18,13 @@ namespace Monstro.Util
         {
             return GetTimestamp(DateTime.Now);
         }
+
+        public static String CleanFileName(String s)
+        {
+            String chars = @"\/:*?""<>|";
+            foreach (var c in chars)
+                s = s.Replace(c, '-');
+            return s;
+        }
     }
 }
