@@ -21,6 +21,11 @@ namespace Test
             var first = results.First();
             Assert.That(first.title.ToLower().Contains("matrix"));
             Assert.AreEqual(2003, first.GetYear());
+
+            var detail = api.GetDetails(first.tconst);
+            Assert.AreEqual(first.year, detail.year);
+            Assert.AreEqual(first.title, detail.title);
+            Assert.AreEqual(first.tconst, detail.tconst);
         }
 
         [Test]
