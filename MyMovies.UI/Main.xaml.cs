@@ -84,31 +84,39 @@ namespace MyMovies
                                 continue;
                             }
 
-                            scanLog.Info("Processing " + f.Path);
-
-                            String q = f.Title + " " + f.Year;
-                            scanLog.Info("IMDB: searching for '{0}'...", q);
-                            var m = imdb.Find(q).FirstOrDefault();
-                            if (m == null)
+                            try
                             {
-                                scanLog.Info("IMDB: no result");
-                                continue;
+                                scanLog.Info("Processing " + f.Path);
+
+                                String q = f.Title + " " + f.Year;
+                                scanLog.Info("IMDB: searching for '{0}'...", q);
+                                var m = imdb.Find(q).FirstOrDefault();
+                                if (m == null)
+                                {
+                                    scanLog.Info("IMDB: no result");
+                                    continue;
+                                }
+                                scanLog.Info("IMDB: found {0} - {1}", m.title, m.year);
+                                scanLog.Info("IMDB: getting movie details...");
+                                var detail = imdb.GetDetails(m.tconst);
+
+                                var movie = new Movie();
+                                movie.Files.Add(f.Path);
+                                movie.Files.AddRange(f.Duplicated.ConvertAll(d => d.Path));
+                                movie.UpdateInfos(m);
+                                movie.UpdateInfos(detail);
+                                DM.AddMovie(movie);
+
+                                Dispatcher.BeginInvoke(DispatcherPriority.Send, new DispatcherOperationCallback(delegate
+                                {
+                                    UpdateTitle();
+                                    return null;
+                                }), null);
                             }
-                            scanLog.Info("IMDB: found {0} - {1}", m.title, m.year);
-                            scanLog.Info("IMDB: getting movie details...");
-                            var detail = imdb.GetDetails(m.tconst);
-
-                            var movie = new Movie();
-                            movie.Files.Add(f.Path);
-                            movie.Files.AddRange(f.Duplicated.ConvertAll(d => d.Path));
-                            movie.UpdateInfos(m);
-                            movie.UpdateInfos(detail);
-                            DM.AddMovie(movie);
-
-                            Dispatcher.BeginInvoke(DispatcherPriority.Send, new DispatcherOperationCallback(delegate{
-                                UpdateTitle();
-                                return null;
-                            }), null);
+                            catch(Exception ex)
+                            {
+                                scanLog.Error(ex.Message);
+                            }
                         }
                     }
                     return "";

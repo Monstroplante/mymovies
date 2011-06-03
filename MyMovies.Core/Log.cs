@@ -28,6 +28,11 @@ namespace MyMovies.Core
             Write(_cat, Level.Debug, message, args);
         }
 
+        public void Error(String message, params String[] args)
+        {
+            Write(_cat, Level.Error, message, args);
+        }
+
         public enum Level
         {
             Debug,
