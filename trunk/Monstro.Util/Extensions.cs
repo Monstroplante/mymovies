@@ -87,6 +87,11 @@ namespace System
             return s.Split(new[] { separator });
         }
 
+        public static String[] Split(this String s, char separator, int count)
+        {
+            return s.Split(new[] { separator }, count);
+        }
+
         /// <summary>
         /// Split a String joined by String.JoinEscaped Extension method
         /// </summary>

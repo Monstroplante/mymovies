@@ -61,6 +61,7 @@
     <Compile Include="DM.cs" />
     <Compile Include="IMDB\JsonFind.cs" />
     <Compile Include="IMDB\IMDB.cs" />
+    <Compile Include="IMDB\JsonHello.cs" />
     <Compile Include="IMDB\JsonMainDetails.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Movie.cs" />
