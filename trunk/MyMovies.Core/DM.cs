@@ -14,9 +14,9 @@ namespace MyMovies.Core
         private List<Movie> _movies;
         private readonly String _dataFile = GetLocalFilePath("data.json");
 
-        public static String GetLocalFilePath(String filename)
+        public static String GetLocalFilePath(params String[] path)
         {
-            return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), filename);
+            return Path.Combine(path.Prepend(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)).ToArray());
         }
 
         public static DM Instance

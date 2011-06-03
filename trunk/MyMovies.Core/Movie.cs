@@ -16,7 +16,7 @@ namespace MyMovies.Core
         public int? Year;
         public String ImdbId;
         public double? ImdbRating;
-        public String ImgUrl;
+        public String Cover;
         public DateTime DateAdded;
         public int? Duration;
 
@@ -35,8 +35,6 @@ namespace MyMovies.Core
             catch { }
             ImdbId = infos.tconst;
             Principals = infos.principals.NoNull().ConvertAll(p => p.name).ToList();
-            if (infos.image != null)
-                ImgUrl = infos.image.url;
         }
 
         public void UpdateInfos(JsonMainDetails.Data infos)
