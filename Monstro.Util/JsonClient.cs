@@ -11,27 +11,31 @@ namespace Monstro.Util
 {
     public class JsonClient
     {
-        private const String UserAgent = "Personal use, thank you :)";
+        protected String UserAgent = null;
+        private CookieContainer _cookies = new CookieContainer();
 
-        protected T Request<T>(UrlBuilder url)
+        protected virtual T Call<T>(UrlBuilder url)
         {
-            return Request<T>(url.ToString());
+            return Call<T>(url.ToString());
         }
 
-        protected T Request<T>(String url)
+        protected virtual T Call<T>(String url)
         {
             var q = (HttpWebRequest)WebRequest.Create(url);
             q.Timeout = 10000;
-            q.KeepAlive = false;
+            q.KeepAlive = true;
             q.UserAgent = UserAgent;
-            q.Headers["Accept-Encoding"] = "gzip";
+            q.Accept = "gzip";
+            q.CookieContainer = _cookies;
 
-            var r = (HttpWebResponse)q.GetResponse();
-            var s = r.ContentEncoding == "gzip"
-                ? new GZipStream(r.GetResponseStream(), CompressionMode.Decompress)
-                : r.GetResponseStream();
-            var content = new StreamReader(s, Encoding.UTF8).ReadToEnd();
-            return new JavaScriptSerializer().Deserialize<T>(content);
+            using (var r = (HttpWebResponse)q.GetResponse())
+            {
+                var s = r.ContentEncoding == "gzip"
+	                ? new GZipStream(r.GetResponseStream(), CompressionMode.Decompress)
+	                : r.GetResponseStream();
+                var content = new StreamReader(s, Encoding.UTF8).ReadToEnd();
+                return new JavaScriptSerializer().Deserialize<T>(content);
+            }
         }
     }
 }
