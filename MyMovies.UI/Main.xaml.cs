@@ -118,7 +118,6 @@ namespace MyMovies
 
                                 var movie = new Movie();
                                 movie.Files.AddRange(f.Duplicated.ConvertAll(d => d.Path).Prepend(f.Path));
-                                movie.UpdateInfos(m);
                                 movie.UpdateInfos(detail);
                                 movie.Cover = cover;
                                 DM.AddMovie(movie);

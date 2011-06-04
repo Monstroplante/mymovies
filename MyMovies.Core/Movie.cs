@@ -11,6 +11,8 @@ namespace MyMovies.Core
     {
         public List<String> Files = new List<String>();
         public List<String> Principals = new List<String>();
+        public List<String> Directors = new List<String>();
+        public List<String> Writers = new List<String>();
         public List<String> Genres = new List<String>();
         public String Title;
         public int? Year;
@@ -19,13 +21,14 @@ namespace MyMovies.Core
         public String Cover;
         public DateTime DateAdded;
         public int? Duration;
+        public String Plot;
 
         public Movie()
         {
             DateAdded = DateTime.Now;
         }
 
-        public void UpdateInfos(JsonFind.List infos)
+        public void UpdateInfos(JsonMainDetails.Data infos)
         {
             Title = infos.title;
             try
@@ -33,12 +36,12 @@ namespace MyMovies.Core
                 Year = int.Parse(infos.year);
             }
             catch { }
+            if(infos.plot != null)
+                Plot = infos.plot.outline;
             ImdbId = infos.tconst;
-            Principals = infos.principals.NoNull().ConvertAll(p => p.name).ToList();
-        }
-
-        public void UpdateInfos(JsonMainDetails.Data infos)
-        {
+            Principals = infos.cast_summary.NoNull().ConvertAll(p => p.name.name).ToList();
+            Directors = infos.directors_summary.NoNull().ConvertAll(p => p.name.name).ToList();
+            Writers = infos.writers_summary.NoNull().ConvertAll(p => p.name.name).ToList();
             Genres = infos.genres.ToList();
             ImdbRating = infos.rating;
             if (infos.runtime != null)
