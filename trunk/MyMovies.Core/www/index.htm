@@ -7,19 +7,24 @@
         <title>My movies</title>
         <script type="text/javascript" src="jquery-1.6.1.min.js"></script>
         <link rel="stylesheet" type="text/css" href="common.css"/>
-        <link rel="stylesheet" type="text/css" href="dark.css"/>
+        <link rel="stylesheet" type="text/css" href="themes/dark/style.css"/>
     </head>
     <body>
-        <div class="movies">
-            
-        </div>
-        <div id="templates">
-            <div class="movieclassic">
-                <h2 class="title"></h2>
-                <a class="play">Play</a>
-                <img class="cover" />
-            </div>
-        </div>
+		<div class="sitecontainer">
+			<div class="movies"></div>
+			<div id="templates">
+				<div class="movieclassic">
+					<img class="cover" />
+					<div class="content">
+						<div class="title"></div>
+						<div class="principals"></div>
+						<div class="plot"></div>
+						<div class="stars"><div></div></div>
+						<a class="play">Play</a>
+					</div>
+				</div>
+			</div>
+		</div>
         <script type="text/javascript">
             $(function () {
 				//Usefull to test/edit layout
@@ -30,8 +35,15 @@
                     $.each(o, function () {
                         var m = this;
                         var e = template.clone();
-                        $('.cover', e).attr('src', m.Cover ? '/covers/' + m.Cover : '/img/nocover.jpg');
-                        $('.title', e).text(m.Title);
+                        $('.cover', e).attr('src', base + (m.Cover ? '/covers/' + m.Cover : '/img/nocover.jpg'));
+						var title = m.Title;
+						if(m.Year)
+							title += ' - ' + m.Year;
+                        $('.title', e).text(title);
+						$('.principals', e).text(m.Principals.join(' - '));
+						$('.plot', e).text(m.Plot);
+						if(m.ImdbRating)
+							$('.stars', e).show().children().css('width', (10 * m.ImdbRating) + '%');
                         $('.play', e).click(function () {
                             $.get(base + '/*play', { f: m.Files[0] });
                         });

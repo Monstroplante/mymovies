@@ -1,4 +1,14 @@
-﻿body{margin:0; padding:0; font-family:Arial;}
+﻿body{margin:0; padding:0; font-family:Arial; padding:10px;text-align:center;}
+.sitecontainer{text-align:left; margin: 0 auto; width:950px;}
 img{image-rendering: optimizeSpeed;}
-.movieclassic .cover{width:200px;}
 #templates{display:none;}
+
+.movieclassic{overflow:hidden; margin-bottom:40px;}
+.movieclassic .title{font-size: 30px; text-shadow: 1px 1px 3px #000000;}
+.movieclassic .cover{width:200px;}
+.movieclassic .cover{box-shadow: 0 0 30px -10px #000000; float:left;}
+.movieclassic .content{margin-left:220px;}
+
+
+.stars, .stars div{height:14px;background:url(img/stars.png); background-size:16px 32px;}
+.stars{width:160px; background-position:0 100%; display:none;}
