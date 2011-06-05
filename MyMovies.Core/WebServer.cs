@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using Kayak;
 using Kayak.Http;
@@ -19,6 +22,7 @@ namespace MyMovies.Core
     {
         static Thread thread;
         public static String RootDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "www");
+        public static String ScaledDir = Path.Combine(RootDir, "img", "scaled");
         static Log log = new Log("www");
         private static int Port;
 
@@ -78,6 +82,16 @@ namespace MyMovies.Core
 
         class RequestDelegate : IHttpRequestDelegate
         {
+            private static Regex RegScaleFormat = new Regex(@"^(\d*)x(\d*)([cs]*)$", RegexOptions.Compiled);
+
+            private String QueryPathToFile(String queryPath)
+            {
+                queryPath = (queryPath ?? "").Replace('/', Path.DirectorySeparatorChar);
+                if(queryPath.StartsWith(Path.DirectorySeparatorChar.ToString()))
+                    queryPath = queryPath.Substring(1);
+                return Path.Combine(RootDir, queryPath);
+            }
+
             public void OnRequest(HttpRequestHead request, IDataProducer requestBody,
                 IHttpResponseDelegate response)
             {
@@ -90,15 +104,8 @@ namespace MyMovies.Core
                 if (path.EndsWith("/"))
                     path += "index.htm";
 
-                String file = Path.Combine(RootDir, path.Substring(1).Replace('/', Path.DirectorySeparatorChar));
-                if (File.Exists(file))
-                {
-                    var ext = (Path.GetExtension(file) ?? ".").Substring(1).ToLower();
-                    String contentType = ContentTypes.GetOrDefault(ext, "text/plain");
-
-                    DoResponse(request, response, contentType, File.ReadAllBytes(file));
+                if (RepyFile(QueryPathToFile(path), request, response))
                     return;
-                }
 
                 var o = HttpUtility.ParseQueryString(parts.GetOrDefault(1) ?? "");
                 if(path == "/*movies")
@@ -107,7 +114,7 @@ namespace MyMovies.Core
                     return;
                 }
 
-                if(path == "/*play")
+                if (path == "/*play")
                 {
                     var f = o["f"];
                     if (DM.Instance.GetMovieByFile(f) != null)
@@ -118,9 +125,65 @@ namespace MyMovies.Core
                     }
                 }
 
+                //TODO: resize image in a thread
+                if (path.StartsWith("/*scale/"))
+                {
+                    var p = path.Split('/', 4);
+                    if(p.Length != 4)
+                        throw new Exception("invalid scale request");
+
+                    var format = RegScaleFormat.Match(p[2]);
+                    if (!format.Success)
+                        throw new Exception("Invalid format");
+
+                    String img = QueryPathToFile(p[3]);
+                    if(!File.Exists(img))
+                        throw new Exception("Image not found");
+
+                    String dir = Path.Combine(ScaledDir, format.Groups[0].Value);
+                    Directory.CreateDirectory(dir);
+                    String scaledPath = Path.Combine(dir, Util.CleanFileName(p[3]));
+
+                    if(!File.Exists(scaledPath))
+                    {
+                        using(var b = new Bitmap(img))
+                        {
+                            String w = format.Groups[1].Value;
+                            String h = format.Groups[2].Value;
+                            String flags = format.Groups[3].Value;
+                            using(var  scaled = ImgUtil.Scale(b,
+                                w.IsNullOrEmpty() ? (int?)null : int.Parse(w),
+                                h.IsNullOrEmpty() ? (int?)null : int.Parse(h),
+                                flags.Contains('c'),
+                                flags.Contains('s')))
+                            {
+                                ImgUtil.Compress(scaled, scaledPath, ImageFormat.Jpeg, 90);
+                            }
+                        }
+                    }
+                    RepyFile(scaledPath, request, response);
+                    return;
+                }
+
                 //404
                 DoResponse(request, response, "text/plain",
                     "The resource you requested ('" + path + "') could not be found.");
+            }
+
+            /// <summary>
+            /// Try to return a file to client. Return false if file is not found
+            /// </summary>
+            /// <returns></returns>
+            private bool RepyFile(String filePath, HttpRequestHead request, IHttpResponseDelegate response)
+            {
+                if (!File.Exists(filePath))
+                    return false;
+
+                var ext = (Path.GetExtension(filePath) ?? ".").Substring(1).ToLower();
+                String contentType = ContentTypes.GetOrDefault(ext, "text/plain");
+
+                DoResponse(request, response, contentType, File.ReadAllBytes(filePath));
+                return true;
             }
         }
 

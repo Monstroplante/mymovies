@@ -20,6 +20,7 @@
 						<div class="principals"></div>
 						<div class="plot"></div>
 						<div class="stars"><div></div></div>
+						<pre class="files"></pre>
 						<a class="play">Play</a>
 					</div>
 				</div>
@@ -35,7 +36,7 @@
                     $.each(o, function () {
                         var m = this;
                         var e = template.clone();
-                        $('.cover', e).attr('src', base + (m.Cover ? '/covers/' + m.Cover : '/img/nocover.jpg'));
+                        $('.cover', e).attr('src', base + '/*scale/300x/' + (m.Cover ? 'covers/' + m.Cover : 'img/nocover.jpg'));
 						var title = m.Title;
 						if(m.Year)
 							title += ' - ' + m.Year;
@@ -44,6 +45,7 @@
 						$('.plot', e).text(m.Plot);
 						if(m.ImdbRating)
 							$('.stars', e).show().children().css('width', (10 * m.ImdbRating) + '%');
+						$('.files', e).text(m.Files.join('\n'));
                         $('.play', e).click(function () {
                             $.get(base + '/*play', { f: m.Files[0] });
                         });
