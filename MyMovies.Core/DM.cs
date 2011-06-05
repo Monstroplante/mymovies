@@ -58,9 +58,13 @@ namespace MyMovies.Core
         {
             lock (_movies)
             {
-                if (_movies.Any(m => m.Files.Intersect(movie.Files).Any()))
+                if (_movies.Any(o => o.Files.Intersect(movie.Files).Any()))
                     throw new Exception("This file is already in collection");
-                _movies.Add(movie);
+                var m = movie.ImdbId.IsNullOrEmpty() ? null : _movies.FirstOrDefault(o => o.ImdbId == movie.ImdbId);
+                if(m != null)
+                    m.Files.AddRange(movie.Files);
+                else
+                    _movies.Add(movie);
             }
         }
 
