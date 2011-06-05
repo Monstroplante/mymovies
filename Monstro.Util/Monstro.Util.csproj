@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Crypto.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="DiskCache.cs" />
     <Compile Include="ImgUtil.cs" />
     <Compile Include="JsonClient.cs" />
     <Compile Include="Network.cs" />

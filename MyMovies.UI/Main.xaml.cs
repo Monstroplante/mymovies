@@ -107,9 +107,13 @@ namespace MyMovies
                                     scanLog.Info("IMDB: downloading cover");
                                     cover = Util.CleanFileName(m.image.url);
                                     var coverDir = System.IO.Path.Combine(WebServer.RootDir, "covers");
-                                    if(!Directory.Exists(coverDir))
-                                        Directory.CreateDirectory(coverDir);
-                                    wc.DownloadFile(m.image.url, System.IO.Path.Combine(coverDir, cover));
+                                    var coverPath = System.IO.Path.Combine(coverDir, cover);
+                                    if(!File.Exists(coverPath))
+                                    {
+                                        if (!Directory.Exists(coverDir))
+                                            Directory.CreateDirectory(coverDir);
+                                        wc.DownloadFile(m.image.url, coverPath);
+                                    }
                                 }
 
                                 scanLog.Info("IMDB: found {0} - {1}", m.title, m.year);

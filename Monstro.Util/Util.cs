@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -25,6 +26,31 @@ namespace Monstro.Util
             foreach (var c in chars)
                 s = s.Replace(c, '-');
             return s;
+        }
+
+        /// <summary>
+        /// Copies the contents of input to output. Doesn't close either stream.
+        /// </summary>
+        public static void CopyStream(Stream input, Stream output)
+        {
+            byte[] buffer = new byte[8 * 1024];
+            int len;
+            while ((len = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, len);
+            }
+        }
+
+        public static byte[] StreamToBytes(Stream input)
+        {
+            var buffer = new byte[16 * 1024];
+            using (var ms = new MemoryStream())
+            {
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                    ms.Write(buffer, 0, read);
+                return ms.ToArray();
+            }
         }
     }
 }
