@@ -31,17 +31,23 @@ namespace Test
         [Test]
         public void TestSignUrl()
         {
-            var sample = new Dictionary<String, String>{
-                {"http://app.imdb.com/find?q=matrix&appid=android2&device=406642b5-8ee2-4a3b-91ac-5229dc474faf&locale=fr_FR&timestamp=1307058440",
-                "http://app.imdb.com/find?q=matrix&appid=android2&device=406642b5-8ee2-4a3b-91ac-5229dc474faf&locale=fr_FR&timestamp=1307058440&sig=and2-11fd0275e635e91b9a874c61ec7b6a95c455676b"},
-                {"http://app.imdb.com/title/maindetails?videoformats=H.264%2CCBP&tconst=tt0133093&appid=android2&device=406642b5-8ee2-4a3b-91ac-5229dc474faf&locale=fr_FR&timestamp=1307058447",
-                "http://app.imdb.com/title/maindetails?videoformats=H.264%2CCBP&tconst=tt0133093&appid=android2&device=406642b5-8ee2-4a3b-91ac-5229dc474faf&locale=fr_FR&timestamp=1307058447&sig=and2-d86c575a2cd3fd0cef28697a4818f2deb23029db"},
-                {"http://app.imdb.com/title/plot?tconst=tt0133093&appid=android2&device=406642b5-8ee2-4a3b-91ac-5229dc474faf&locale=fr_FR&timestamp=1307058465",
-                "http://app.imdb.com/title/plot?tconst=tt0133093&appid=android2&device=406642b5-8ee2-4a3b-91ac-5229dc474faf&locale=fr_FR&timestamp=1307058465&sig=and2-701c6103545a2ba91fa6733fc910c1772ef25ffc"},
+            var sample = new[]{
+                new{
+                    usigned = "http://app.imdb.com/find?q=matrix&appid=android2&device=406642b5-8ee2-4a3b-91ac-5229dc474faf&locale=fr_FR",
+                    timestamp = 1307058440,
+                    signed = "http://app.imdb.com/find?q=matrix&appid=android2&device=406642b5-8ee2-4a3b-91ac-5229dc474faf&locale=fr_FR&timestamp=1307058440&sig=and2-11fd0275e635e91b9a874c61ec7b6a95c455676b"},
+                new{
+                    usigned = "http://app.imdb.com/title/maindetails?videoformats=H.264%2CCBP&tconst=tt0133093&appid=android2&device=406642b5-8ee2-4a3b-91ac-5229dc474faf&locale=fr_FR",
+                    timestamp = 1307058447,
+                    signed = "http://app.imdb.com/title/maindetails?videoformats=H.264%2CCBP&tconst=tt0133093&appid=android2&device=406642b5-8ee2-4a3b-91ac-5229dc474faf&locale=fr_FR&timestamp=1307058447&sig=and2-d86c575a2cd3fd0cef28697a4818f2deb23029db"},
+                new{
+                    usigned = "http://app.imdb.com/title/plot?tconst=tt0133093&appid=android2&device=406642b5-8ee2-4a3b-91ac-5229dc474faf&locale=fr_FR",
+                    timestamp = 1307058465,
+                    signed = "http://app.imdb.com/title/plot?tconst=tt0133093&appid=android2&device=406642b5-8ee2-4a3b-91ac-5229dc474faf&locale=fr_FR&timestamp=1307058465&sig=and2-701c6103545a2ba91fa6733fc910c1772ef25ffc"},
             };
-            foreach (var kv in sample)
+            foreach (var o in sample)
             {
-                Assert.AreEqual(kv.Value, IMDB.SignUrl(kv.Key));
+                Assert.AreEqual(o.signed, IMDB.SignUrl(new UrlBuilder(o.usigned), o.timestamp));
             }
         }
     }

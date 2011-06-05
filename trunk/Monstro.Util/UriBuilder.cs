@@ -70,5 +70,11 @@ namespace Monstro.Util
                 return "";
             return HttpUtility.UrlEncode(s).Replace("+", "%20");
         }
+
+        public UrlBuilder Set(String key, String value)
+        {
+            _params.Remove(_params.FirstOrDefault(o => o.Key == key));
+            return Put(key, value);
+        }
     }
 }

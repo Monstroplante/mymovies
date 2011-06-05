@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
 using Monstro.Util;
+using MyMovies.Core;
 using MyMovies.Core.IMDB;
 using System.Threading;
 
@@ -26,14 +27,14 @@ namespace Helper.IMDB
         
         public IMDB() : this(Thread.CurrentThread.CurrentCulture.Name){}
 
-        public IMDB(String locale) : base(){
+        public IMDB(String locale) : base(new DiskCache(DM.GetLocalFilePath("httpcache")), null, 0, 0, 10000){
             Locale = (locale ?? "fr_FR").Replace("-", "_");
             SayHello();
         }
 
         private void SayHello()
         {
-            Call<JsonHello>("hello",
+            Call<JsonHello>("hello", false,
                 KV("app_version", "1.5"),
                 KV("device_model", "Nexus One"),
                 KV("count", "0"),
@@ -70,39 +71,42 @@ namespace Helper.IMDB
                 .data;
         }
 
-        private DateTime _nextReqMinDate = DateTime.MinValue;
-        private T Call<T>(String function, params KeyValuePair<String, String>[] args)
+        private T Call<T>(String function, bool useCache, params KeyValuePair<String, String>[] args)
         {
-            int delay = (int)(_nextReqMinDate - DateTime.Now).TotalMilliseconds;
-            if (delay > 0)
-                Thread.Sleep(delay);
-
-            try
-            {
-                var o = base.Call<T>(SignUrl(new UrlBuilder(BaseUrl + function)
-                    .PutAll(args)
-                    .Put("appid", AppId)
-                    .Put("device", DeviceId)
-                    .Put("locale", Locale)
-                    .Put("timestamp", Util.GetTimestamp())
-                    .ToString()));
-
-                //Wait minimum random time betweed requests
-                _nextReqMinDate = DateTime.Now.AddSeconds(new Random().NextDouble() * 2);
-                return o;
-            }
-            catch(WebException ex)
-            {
-                //Wait minimum 30s after an error
-                _nextReqMinDate = DateTime.Now.AddSeconds(30);
-                throw;
-            }
+            return base.Call<T>(SignUrl(new UrlBuilder(BaseUrl + function)
+                .PutAll(args)
+                .Put("appid", AppId)
+                .Put("device", DeviceId)
+                .Put("locale", Locale)),
+                useCache);
         }
 
-        public static String SignUrl(String url)
+        private T Call<T>(String function, params KeyValuePair<String, String>[] args)
         {
-            url += "&sig=and2";
+            return Call<T>(function, true, args);
+        }
+
+        protected static String SignUrl(UrlBuilder b)
+        {
+            return SignUrl(b, Util.GetTimestamp());
+        }
+
+        /// <param name="timestamp">Usefull for tests</param>
+        public static String SignUrl(UrlBuilder b, double timestamp)
+        {
+            b.Put("timestamp", timestamp);
+            b.Put("sig", "and2");
+            String url = b.ToString();
             return url + "-" + Crypto.HMACSHA1(url, Key);
+        }
+
+        protected override string GetCachedKey(string url)
+        {
+            var ignoredParams = new[] {"appid", "device", "timestamp", "sig"};
+            var parts = url.Split(new[] {'?', '&'});
+            return parts[0] + '?' + parts.Skip(1)
+                .Where(s => !s.Split('=')[0].In(ignoredParams))
+                .Join("&");
         }
     }
 }
