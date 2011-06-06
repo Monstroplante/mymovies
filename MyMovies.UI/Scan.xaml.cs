@@ -53,7 +53,7 @@ namespace MyMovies
             }
             Title = String.Format("Scan {0}/{1}", _pos + 1, _movies.Count);
             TbFile.Text = m.Path;
-            TbQuery.Text = (m.Title + " " + m.Year).Trim();
+            TbQuery.Text = (m.GuessedTitle + " " + m.GuessedYear).Trim();
 
             Search();
         }
