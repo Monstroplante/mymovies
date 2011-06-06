@@ -56,7 +56,9 @@ namespace MyMovies.Core
 
         private static void Write(String cat, Level level, String message, params String[] args)
         {
-            message = String.Format(message ?? "", args).Replace("\t", " ");
+            message = message ?? "";
+            message = args.Length < 1 ? message : String.Format(message, args);
+            message = message.Replace("\t", " ");
             lock (_lock)
             {
                 using (var w = File.AppendText(DM.GetLocalFilePath("log.txt")))
