@@ -2,11 +2,12 @@
 .sitecontainer{text-align:left; margin: 0 auto; width:950px;}
 img{image-rendering: optimizeSpeed;}
 #templates{display:none;}
+.clear{clear:both;}
 
-.movieclassic{overflow:hidden; margin-bottom:40px;}
+.movieclassic{margin-bottom:40px;}
 .movieclassic .title{font-size: 30px; text-shadow: 1px 1px 3px #000000;}
 .movieclassic .cover{width:200px;}
-.movieclassic .cover{box-shadow: 0 0 30px -10px #000000; float:left;}
+.movieclassic .cover{box-shadow: 0 0 30px -5px #000000; float:left;}
 .movieclassic .content{margin-left:220px;}
 
 
