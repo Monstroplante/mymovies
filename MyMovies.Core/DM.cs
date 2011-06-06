@@ -62,7 +62,7 @@ namespace MyMovies.Core
                     throw new Exception("This file is already in collection");
                 var m = movie.ImdbId.IsNullOrEmpty() ? null : _movies.FirstOrDefault(o => o.ImdbId == movie.ImdbId);
                 if(m != null)
-                    m.Files.AddRange(movie.Files);
+                    m.Files = m.Files.Concat(movie.Files).Distinct().OrderBy(s => s).ToList();
                 else
                     _movies.Add(movie);
             }
