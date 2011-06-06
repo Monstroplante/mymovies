@@ -45,7 +45,7 @@
 						$('.principals', e).text(m.Principals.join(' - '));
 						$('.plot', e).text(m.Plot);
 						if(m.ImdbRating)
-							$('.stars', e).show().children().css('width', (10 * m.ImdbRating) + '%');
+							$('.stars', e).css('display', 'block').children().css('width', (10 * m.ImdbRating) + '%');
 						$('.files', e).text(m.Files.join('\n'));
                         $('.play', e).click(function () {
                             $.get(base + '/*play', { f: m.Files[0] });
