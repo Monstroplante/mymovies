@@ -197,11 +197,10 @@ namespace Test
         {
             foreach (var scanResult in ScanResults)
             {
-                var scan = Scanner.ScanFiles(scanResult.ConvertAll(r => r.Movie.Path));
                 foreach (var expected in scanResult)
                 {
                     var e = expected;
-                    var result = scan.First(f => f.Path == e.Movie.Path);
+                    var result = Scanner.ParseMovieName(expected.Movie.Path);
                     if (expected.Ok)
                         AssertMovieInfosEquals(expected.Movie, result);
 
@@ -211,8 +210,8 @@ namespace Test
 
         private static void AssertMovieInfosEquals(MovieInfos a, MovieInfos b)
         {
-            Assert.AreEqual(a.Title, b.Title, "Title of " + a.Path);
-            Assert.AreEqual(a.Year, b.Year, "Year of " + a.Path);
+            Assert.AreEqual(a.GuessedTitle, b.GuessedTitle, "Title of " + a.Path);
+            Assert.AreEqual(a.GuessedYear, b.GuessedYear, "Year of " + a.Path);
             Assert.AreEqual(a.ShouldBeIgnored, b.ShouldBeIgnored, "ShouldBeIgnored of " + a.Path);
             Assert.AreEqual(a.Path, b.Path, "Path of " + a.Path);
             Assert.AreEqual(a.SeamsDuplicated, b.SeamsDuplicated, "SeamsDuplicated of " + a.Path);

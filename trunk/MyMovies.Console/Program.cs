@@ -16,7 +16,7 @@ namespace FileScanner
         static void Main(string[] args)
         {
             var curdir = Directory.GetCurrentDirectory();
-            var movies = Scanner.ScanDir(@"C:\torrent\films");
+            var movies = Scanner.GetFiles(@"C:\torrent\films").ConvertAll(Scanner.ParseMovieName);
 
             movies = movies
                 //.Where(m => !TestScanner.Good.Any(g => g.File == m.Path))
@@ -24,8 +24,8 @@ namespace FileScanner
 
             foreach (var m in movies)
             {
-                Console.WriteLine(m.Title + " " + m.Year);
-                var imdb = new IMDB("fr_FR").Find(m.Title + " " + m.Year);
+                Console.WriteLine(m.GuessedTitle + " " + m.GuessedYear);
+                var imdb = new IMDB("fr_FR").Find(m.GuessedTitle + " " + m.GuessedYear);
                 foreach(var r in imdb.Take(3))
                     Console.WriteLine(new[]{"imdb:", r.title, r.year, r.image == null ? null : r.image.url}.Where(s =>!s.IsNullOrEmpty()).Join(" "));
                 Console.ReadLine();
@@ -40,8 +40,8 @@ namespace FileScanner
             {
                 //MovieInfos(String title, int? year, String path, bool seamsDuplicated, bool ignore)
                 w.WriteLine("new TestResult({5}, new MovieInfos(\"{0}\", {1}, @\"{2}\", {3}, {4})),",
-                    m.Title,
-                    m.Year == null ? "null" : m.Year.ToString(),
+                    m.GuessedTitle,
+                    m.GuessedYear == null ? "null" : m.GuessedYear.ToString(),
                     m.Path,
                     m.SeamsDuplicated ? "true" : "false",
                     m.ShouldBeIgnored ? "true" : "false",

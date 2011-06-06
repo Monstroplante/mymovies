@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Helper;
 using Helper.IMDB;
 using MyMovies.Core.IMDB;
 
@@ -22,21 +23,19 @@ namespace MyMovies.Core
         public DateTime DateAdded;
         public int? Duration;
         public String Plot;
+        public String GuessedTitle;
 
-        public Movie()
+        public Movie(MovieInfos file, JsonMainDetails.Data infos)
         {
             DateAdded = DateTime.Now;
-        }
 
-        public void UpdateInfos(JsonMainDetails.Data infos)
-        {
             Title = infos.title;
             try
             {
                 Year = int.Parse(infos.year);
             }
             catch { }
-            if(infos.plot != null)
+            if (infos.plot != null)
                 Plot = infos.plot.outline;
             ImdbId = infos.tconst;
             Principals = infos.cast_summary.NoNull().ConvertAll(p => p.name.name).ToList();
@@ -46,6 +45,14 @@ namespace MyMovies.Core
             ImdbRating = infos.rating;
             if (infos.runtime != null)
                 Duration = infos.runtime.time;
+
+            GuessedTitle = (file.GuessedTitle + " " + file.GuessedYear).Trim();
+            Files.Add(file.Path);
         }
+
+        /// <summary>
+        /// Required for json deserialization
+        /// </summary>
+        public Movie(){}
     }
 }

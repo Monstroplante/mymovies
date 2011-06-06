@@ -25,39 +25,7 @@ namespace Helper
         static readonly Regex RegSeamsDuplicated = new Regex(@"\b(sample|cd\W?[2-9])\b", CompiledIgnoreCase);
         static readonly Regex RegBlackList = new Regex(@"(2 - Video à voir EN 2|\\sample\\)", CompiledIgnoreCase);
 
-        public static List<MovieInfos> ScanFiles(IEnumerable<String> filePaths)
-        {
-            var groups = filePaths.NoNull()
-                .Where(s => (s.Split('.').LastOrDefault() ?? "").ToLower().In(ext))
-                .ConvertAll(s => ParseMovieName(s))
-                .GroupBy(r => (r.Title ?? "").ToLower());
-            var movies = new List<MovieInfos>();
-            foreach (var g in groups)
-            {
-                var ordered = g
-                    .OrderBy(m => m.Path)
-                    .OrderBy(m => m.Year == null)
-                    .OrderBy(m => m.Path.Split('\\').Length)
-                    .OrderBy(m => m.SeamsDuplicated)
-                    .ToList();
-                var first = ordered.First();
-                first.Duplicated.AddRange(ordered.Skip(1));
-                movies.Add(first);
-            }
-            return movies
-                .OrderBy(m => m.Path)
-                .ToList();
-        }
-
-        public static List<MovieInfos> ScanDir(String path)
-        {
-            var d1 = DateTime.Now;
-            var r = ScanFiles(GetFiles(path));
-            Console.WriteLine("Found {0} movies in {1}", r.Count, DateTime.Now - d1);
-            return r;
-        }
-
-        private static IEnumerable<String> GetFiles(String path)
+        public static IEnumerable<String> GetFiles(String path)
         {
             String[] dirs = null;
             String[] files = null;
@@ -80,7 +48,7 @@ namespace Helper
             
         }
 
-        private static MovieInfos ParseMovieName(String path)
+        public static MovieInfos ParseMovieName(String path)
         {
             bool seeamsDuplicated = RegSeamsDuplicated.IsMatch(path);
             var parts = path.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries)
