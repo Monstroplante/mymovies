@@ -18,10 +18,12 @@
 					<div class="content">
 						<div class="title"></div>
 						<div class="principals"></div>
+						<div class="genres"></div>
 						<div class="plot"></div>
-						<div class="stars"><div></div></div>
-						<pre class="files"></pre>
+						<span class="star hidden"></span>
 						<a class="play">Play</a>
+						<a class="showfiles"></a>
+						<div class="files hidden"></div>
 					</div>
                     <div class="clear"></div>
 				</div>
@@ -33,6 +35,10 @@
 				var base = window.location.href.indexOf('file://') === 0
 					? 'http://localhost:8080' : '';
                 $.getJSON(base + '/*movies?jsonp=?', function (o) {
+					var play = function(f){
+						return $.get(base + '/*play', { f: f });
+					};
+
                     var template = $('#templates .movieclassic');
                     $.each(o, function () {
                         var m = this;
@@ -43,12 +49,25 @@
 							title += ' - ' + m.Year;
                         $('.title', e).text(title);
 						$('.principals', e).text(m.Principals.join(' - '));
+						$('.genres', e).text(m.Genres.join(' - '));
 						$('.plot', e).text(m.Plot);
 						if(m.ImdbRating)
-							$('.stars', e).css('display', 'block').children().css('width', (10 * m.ImdbRating) + '%');
-						$('.files', e).text(m.Files.join('\n'));
+							$('.star', e).removeClass('hidden').text(m.ImdbRating);
+						var files = $('.files', e);
+						
+						$('.showfiles', e).text(m.Files.length + ' file' + (m.Files.length > 1 ? 's':'')).click(function(){
+							if(files.is(':empty')){
+								$.each(m.Files, function(i,v){
+									$('<a/>').text(v).click(function(){
+										play(v);
+									}).appendTo(files);
+								});
+							}
+							files.slideToggle(200);
+						});
+						
                         $('.play', e).click(function () {
-                            $.get(base + '/*play', { f: m.Files[0] });
+                            play(m.Files[0]);
                         });
                         $('.movies').append(e);
                     });
