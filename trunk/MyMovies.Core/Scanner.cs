@@ -79,7 +79,7 @@ namespace Helper
 
             var m = RegSerial.Match(f);
             if (m.Success)
-                f = Cleanup(m.Groups[1].Value) + " Season " + int.Parse(m.Groups["s"].Value);
+                f = Cleanup(m.Groups[1].Value);
 
             m = RegExtractTitleAndYear.Match(f);
             if (m.Success)
