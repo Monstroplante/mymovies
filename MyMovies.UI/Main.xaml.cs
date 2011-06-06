@@ -100,7 +100,7 @@ namespace MyMovies
                         }
                         catch(Exception ex)
                         {
-                            scanLog.Error(ex.Message);
+                            scanLog.Error(ex is Scanner.NoMatchFoundException ? ">> NO MATCH FOUND" : ex.Message);
                         }
                     }
                     return "";
