@@ -15,9 +15,9 @@ using System.Threading;
 
 namespace Helper.IMDB
 {
-    public class IMDB : JsonClient
+    public class IMDBClient : JsonClient
     {
-        private readonly String DeviceId = Guid.NewGuid().ToString();
+        private readonly String DeviceId;
         private const String AppId = "android2";
         public const String Key = "eRnAYqbvj2JWXyPcu62yCA";
         private const String BaseUrl = "http://app.imdb.com/";
@@ -25,11 +25,15 @@ namespace Helper.IMDB
         public String Locale{get; private set;}
         static readonly Regex RegExtractTitleAndYear = new Regex(@"^(.+?)\b((?:1|2)[0-9o]{3})\s*$", RegexOptions.Compiled);
         
-        public IMDB() : this(Thread.CurrentThread.CurrentCulture.Name){}
+        public IMDBClient() : this(Thread.CurrentThread.CurrentCulture.Name){}
 
-        public IMDB(String locale) : base(new DiskCache(DM.GetLocalFilePath("httpcache")), null, 0, 0, 10000){
+        public IMDBClient(String locale) : base(new DiskCache(DM.GetLocalFilePath("httpcache")), null, 0, 0, 10000){
             Locale = (locale ?? "fr_FR").Replace("-", "_");
-            SayHello();
+            if(DeviceId == null)
+            {
+                DeviceId = Guid.NewGuid().ToString();
+                SayHello();
+            }
         }
 
         private void SayHello()

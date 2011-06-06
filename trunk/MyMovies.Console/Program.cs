@@ -25,7 +25,7 @@ namespace FileScanner
             foreach (var m in movies)
             {
                 Console.WriteLine(m.GuessedTitle + " " + m.GuessedYear);
-                var imdb = new IMDB("fr_FR").Find(m.GuessedTitle + " " + m.GuessedYear);
+                var imdb = new IMDBClient("fr_FR").Find(m.GuessedTitle + " " + m.GuessedYear);
                 foreach(var r in imdb.Take(3))
                     Console.WriteLine(new[]{"imdb:", r.title, r.year, r.image == null ? null : r.image.url}.Where(s =>!s.IsNullOrEmpty()).Join(" "));
                 Console.ReadLine();

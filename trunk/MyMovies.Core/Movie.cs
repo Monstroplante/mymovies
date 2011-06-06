@@ -25,7 +25,7 @@ namespace MyMovies.Core
         public String Plot;
         public String GuessedTitle;
 
-        public Movie(MovieInfos file, JsonMainDetails.Data infos)
+        public Movie(MovieInfos file, JsonMainDetails.Data infos, String coverFileName)
         {
             DateAdded = DateTime.Now;
 
@@ -48,6 +48,7 @@ namespace MyMovies.Core
 
             GuessedTitle = (file.GuessedTitle + " " + file.GuessedYear).Trim();
             Files.Add(file.Path);
+            Cover = coverFileName;
         }
 
         /// <summary>

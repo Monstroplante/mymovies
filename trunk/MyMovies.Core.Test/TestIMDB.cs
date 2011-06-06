@@ -15,7 +15,7 @@ namespace Test
         [Test]
         public void TestFind()
         {
-            var api = new IMDB("fr_FR");
+            var api = new IMDBClient("fr_FR");
             var results = api.Find("matrix 2003 ");
             Assert.Greater(results.Count, 0);
             var first = results.First();
@@ -47,7 +47,7 @@ namespace Test
             };
             foreach (var o in sample)
             {
-                Assert.AreEqual(o.signed, IMDB.SignUrl(new UrlBuilder(o.usigned), o.timestamp));
+                Assert.AreEqual(o.signed, IMDBClient.SignUrl(new UrlBuilder(o.usigned), o.timestamp));
             }
         }
     }
