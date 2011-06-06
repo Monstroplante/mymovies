@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using Helper.IMDB;
+using Monstro.Util;
+using MyMovies.Core;
 
 namespace Helper
 {
@@ -23,7 +27,7 @@ namespace Helper
         static readonly Regex RegTeams = new Regex(
             @"\b(aymo|ALLiANCE|CiNEFiLE|REFiNED|LiMiTED|^final|CiRCLE|^aaf|sample|SAMPLE|Sample|DiAMOND|LIMITED|UNRATED|UsaBit\.com)\b", RegexOptions.Compiled);
         static readonly Regex RegSeamsDuplicated = new Regex(@"\b(sample|cd\W?[2-9])\b", CompiledIgnoreCase);
-        static readonly Regex RegBlackList = new Regex(@"(2 - Video à voir EN 2|\\sample\\)", CompiledIgnoreCase);
+        static readonly Regex RegBlackList = new Regex(@"(2 - Video à voir EN 2|\\sample\\|Sample)", CompiledIgnoreCase);
 
         public static IEnumerable<String> GetFiles(String path)
         {
@@ -117,6 +121,40 @@ namespace Helper
             int pos = f.LastIndexOf('.');
             return pos > 0
                 ? f.Substring(0, pos) : f;
+        }
+
+        public class NoMatchFoundException : Exception{}
+
+        public static Movie FetchMovie(String path)
+        {
+            var imdb = new IMDBClient();
+            var f = Scanner.ParseMovieName(path);
+
+            if (f.ShouldBeIgnored)
+                return null;
+
+            var m = imdb.Find(f.GuessedTitle + " " + f.GuessedYear).FirstOrDefault();
+            if (m == null)
+                throw new NoMatchFoundException();
+
+            String cover = null;
+            if (m.image != null && !m.image.url.IsNullOrEmpty())
+            {
+                cover = Util.CleanFileName(m.image.url);
+                var coverDir = Path.Combine(WebServer.RootDir, "covers");
+                var coverPath = Path.Combine(coverDir, cover);
+                if (!File.Exists(coverPath))
+                {
+                    if (!Directory.Exists(coverDir))
+                        Directory.CreateDirectory(coverDir);
+                    new WebClient().DownloadFile(m.image.url, coverPath);
+                }
+            }
+
+            var detail = imdb.GetDetails(m.tconst);
+
+            var movie = new Movie(f, detail, cover);
+            return movie;
         }
     }
 }

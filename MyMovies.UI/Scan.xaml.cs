@@ -65,7 +65,7 @@ namespace MyMovies
                 _imdbWorker.CancelAsync();
             _imdbWorker = Reactor.Run(
                 TbQuery.Text,
-                q => new IMDB().Find(q),
+                q => new IMDBClient().Find(q),
                 r => LvMovies.ItemsSource = r,
                 e => { if (!(e is CancelledException)) MessageBox.Show("Unable to get movies from IMDB"); },
                 (r, e) => RefreshImdbSpinner());

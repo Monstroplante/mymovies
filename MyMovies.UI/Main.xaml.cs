@@ -71,68 +71,32 @@ namespace MyMovies
                 
             var w = Reactor.Run(
                 directories,
-                dirs =>
-                    {
-                    var wc = new WebClient();
-                    var imdb = new IMDB();
+                dirs => {
                     scanLog.Info("Scan started!");
                     foreach (String path in dirs.SelectMany(Scanner.GetFiles))
                     {
-                        var f = Scanner.ParseMovieName(path);
-
-                        if(f.ShouldBeIgnored)
-                        {
-                            scanLog.Info("Ignoring " + f.Path);
+                        if(DM.GetMovieByFile(path) != null)
                             continue;
-                        }
-
-                        if(DM.GetMovieByFile(f.Path) != null)
-                        {
-                            scanLog.Debug("File already present in collection");
-                            continue;
-                        }
+                        scanLog.Info(path);
 
                         try
                         {
-                            scanLog.Info("Processing " + f.Path);
-
-                            String q = f.GuessedTitle + " " + f.GuessedYear;
-                            scanLog.Info("IMDB: searching for '{0}'...", q);
-                            var m = imdb.Find(q).FirstOrDefault();
-                            if (m == null)
+                            var m = Scanner.FetchMovie(path);
+                            if(m == null)
                             {
-                                scanLog.Info("IMDB: no result");
-                                continue;
+                                scanLog.Info(">> ignored");
                             }
-
-                            String cover = null;
-                            if(m.image != null && !m.image.url.IsNullOrEmpty())
+                            else
                             {
-                                scanLog.Info("IMDB: downloading cover");
-                                cover = Util.CleanFileName(m.image.url);
-                                var coverDir = System.IO.Path.Combine(WebServer.RootDir, "covers");
-                                var coverPath = System.IO.Path.Combine(coverDir, cover);
-                                if(!File.Exists(coverPath))
+                                scanLog.Info(">> found: " + m.Title + " " + m.Year);
+                                DM.AddMovie(m);
+
+                                Dispatcher.BeginInvoke(DispatcherPriority.Send, new DispatcherOperationCallback(delegate
                                 {
-                                    if (!Directory.Exists(coverDir))
-                                        Directory.CreateDirectory(coverDir);
-                                    wc.DownloadFile(m.image.url, coverPath);
-                                }
+                                    UpdateTitle();
+                                    return null;
+                                }), null);
                             }
-
-                            scanLog.Info("IMDB: found {0} - {1}", m.title, m.year);
-                            scanLog.Info("IMDB: getting movie details...");
-                            var detail = imdb.GetDetails(m.tconst);
-
-                            var movie = new Movie(f, detail);
-                            movie.Cover = cover;
-                            DM.AddMovie(movie);
-
-                            Dispatcher.BeginInvoke(DispatcherPriority.Send, new DispatcherOperationCallback(delegate
-                            {
-                                UpdateTitle();
-                                return null;
-                            }), null);
                         }
                         catch(Exception ex)
                         {
