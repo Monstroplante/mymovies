@@ -41,11 +41,9 @@ namespace Monstro.Util
 
             if(useCache)
             {
-                using (var s = _cache.Get(cacheKey))
-                {
-                    if (s != null)
-                        return StreamToObject<T>(s);
-                }
+                var bytes = _cache.Get(cacheKey);
+                if(bytes != null)
+                    return BytesToObject<T>(bytes);
             }
             
             try
@@ -62,13 +60,24 @@ namespace Monstro.Util
 
                 using (var r = (HttpWebResponse)q.GetResponse())
                 {
-                    var s = r.GetResponseStream();
-                    if (r.ContentEncoding == "gzip")
-                        s = new GZipStream(s, CompressionMode.Decompress);
-                    if (!useCache)
-                        return StreamToObject<T>(s);
-                    _cache.Add(cacheKey, s);
-                    return StreamToObject<T>(_cache.Get(cacheKey));
+                    using (var s = r.GetResponseStream())
+                    {
+                        byte[] bytes;
+                        if (r.ContentEncoding == "gzip")
+                        {
+                            using (var gs = new GZipStream(s, CompressionMode.Decompress))
+                            {
+                                bytes = Util.StreamToBytes(gs);
+                            }
+                        }
+                        else
+                        {
+                            bytes = Util.StreamToBytes(s);
+                        }
+                        if (useCache)
+                            _cache.Add(cacheKey, bytes);
+                        return BytesToObject<T>(bytes);
+                    }
                 }
             }
             catch
@@ -84,10 +93,9 @@ namespace Monstro.Util
             }
         }
 
-        private static T StreamToObject<T>(Stream s)
+        private static T BytesToObject<T>(byte[] bytes)
         {
-            var content = new StreamReader(s, Encoding.UTF8).ReadToEnd();
-            return new JavaScriptSerializer().Deserialize<T>(content);
+            return new JavaScriptSerializer().Deserialize<T>(Encoding.UTF8.GetString(bytes));
         }
     }
 }
