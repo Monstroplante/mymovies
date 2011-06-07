@@ -25,9 +25,9 @@ namespace Monstro.Util
             return Path.Combine(_path, Util.CleanFileName(key));
         }
 
-        public void Add(string key, Stream s)
+        public void Add(string key, byte[] content)
         {
-            File.WriteAllBytes(GetFilePath(key), Util.StreamToBytes(s));
+            File.WriteAllBytes(GetFilePath(key), content);
         }
 
         public void Remove(string key)
@@ -37,12 +37,15 @@ namespace Monstro.Util
                 File.Delete(path);
         }
 
-        public Stream Get(String key)
+        public byte[] Get(String key)
         {
             String path = GetFilePath(key);
             if (!File.Exists(path))
                 return null;
-            return File.OpenRead(path);
+            using (var stream = File.OpenRead(path))
+            {
+                return Util.StreamToBytes(stream);
+            }
         }
     }
 }
