@@ -84,6 +84,9 @@
     <Content Include="www\img\nocover.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="www\img\star.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="www\img\stars.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

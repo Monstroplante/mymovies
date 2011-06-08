@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMovies.UI", "MyMovies.UI\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monstro.Util", "Monstro.Util\Monstro.Util.csproj", "{CEBF6F19-C091-42BB-8212-C87BA84B7CAD}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "www", "www", "{4F7EFDB8-B710-451C-8ADA-C423806C057C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monstro.Util.Test", "Monstro.Util.Test\Monstro.Util.Test.csproj", "{D1869B91-F637-4AF3-905B-9DA3EF452403}"
 EndProject
 Global
