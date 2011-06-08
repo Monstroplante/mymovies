@@ -182,7 +182,7 @@ namespace MyMovies.Core
                 var ext = (Path.GetExtension(filePath) ?? ".").Substring(1).ToLower();
                 String contentType = ContentTypes.GetOrDefault(ext, "text/plain");
 
-                DoResponse(request, response, contentType, File.ReadAllBytes(filePath));
+                DoResponse(request, response, contentType, File.ReadAllBytes(filePath), contentType.StartsWith("image/"));
                 return true;
             }
         }
@@ -195,13 +195,15 @@ namespace MyMovies.Core
                 : String.Format("{0}({1})", cb, json));
         }
 
-        private static void DoResponse(HttpRequestHead request, IHttpResponseDelegate response, String contentType, byte[] data)
+        private static void DoResponse(HttpRequestHead request, IHttpResponseDelegate response, String contentType, byte[] data, bool allowCache)
         {
             var body = new BufferedBody(data);
             var headers = new Dictionary<string, string>{
                 { "Content-Type", contentType },
                 { "Content-Length", body.Length.ToString() },
             };
+            if (allowCache)
+                headers["Cache-Control"] = "max-age=31556926";
             response.OnResponse(new HttpResponseHead
             {
                 Status = "200 OK",
@@ -211,7 +213,7 @@ namespace MyMovies.Core
 
         private static void DoResponse(HttpRequestHead request, IHttpResponseDelegate response, String contentType, String data)
         {
-            DoResponse(request, response, contentType, Encoding.UTF8.GetBytes(data));
+            DoResponse(request, response, contentType, Encoding.UTF8.GetBytes(data), false);
         }
 
         class BufferedBody : IDataProducer
