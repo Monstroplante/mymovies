@@ -31,47 +31,58 @@
 		</div>
         <script type="text/javascript">
             $(function () {
+				$.fn.m = function(){
+					var e = this;
+					while(e.length){
+						var d = e.data('m');
+						if(d)return d;
+						e = e.parent();
+					}
+				};
+				
+				var play = function(f){
+					return $.get(base + '/*play', { f: f });
+				};
+				
+				//live events
+				$('.movies .showfiles').live('click', function(){
+					var e = $(this);
+					var div = $('.files', e.parent());
+					var files = e.m().Files;
+					if(div.is(':empty')){
+						$.each(files, function(i,v){
+							$('<a/>').text(v).click(function(){
+								play(v);
+							}).appendTo(div);
+						});
+					}
+					div.slideToggle(Math.min(500, files.length * 20));
+				});
+				$('.movies .play').live('click', function () {
+					play($(this).m().Files[0]);
+				});
+				
 				//Usefull to test/edit layout
 				var base = window.location.href.indexOf('file://') === 0
 					? 'http://localhost:8080' : '';
                 $.getJSON(base + '/*movies?jsonp=?', function (o) {
-					var play = function(f){
-						return $.get(base + '/*play', { f: f });
-					};
-
-                    var template = $('#templates .movieclassic');
+                    var template = $('#templates .movieclassic').clone();
 					var t1 = $.now();
-                    $.each(o, function () {
-                        var m = this;
-                        var e = template.clone();
+					var div = $('.movies');
+                    for(var i in o) {
+                        var m = o[i];
+                        var e = template.clone().data('m', m);
                         $('.cover', e).attr('src', base + '/*scale/300x/' + (m.Cover ? 'covers/' + m.Cover : 'img/nocover.jpg'));
-						var title = m.Title;
-						if(m.Year)
-							title += ' - ' + m.Year;
-                        $('.title', e).text(title);
+                        $('.title', e).text(m.Title + (m.Year ? ' - ' + m.Year : ''));
 						$('.principals', e).text(m.Principals.join(' - '));
 						$('.genres', e).text(m.Genres.join(' - '));
 						$('.plot', e).text(m.Plot);
 						if(m.ImdbRating)
 							$('.star', e).removeClass('hidden').text(m.ImdbRating);
-						var files = $('.files', e);
+						$('.showfiles', e).text(m.Files.length + ' file' + (m.Files.length > 1 ? 's':''))
 						
-						$('.showfiles', e).text(m.Files.length + ' file' + (m.Files.length > 1 ? 's':'')).click(function(){
-							if(files.is(':empty')){
-								$.each(m.Files, function(i,v){
-									$('<a/>').text(v).click(function(){
-										play(v);
-									}).appendTo(files);
-								});
-							}
-							files.slideToggle(200);
-						});
-						
-                        $('.play', e).click(function () {
-                            play(m.Files[0]);
-                        });
-                        $('.movies').append(e);
-                    });
+                        div.append(e);
+                    }
 					console.log('rendered ' + o.length + ' elements in ' + ($.now() - t1) + 'ms');
                 });
             });

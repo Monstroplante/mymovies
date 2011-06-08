@@ -8,7 +8,7 @@
         <Label Content="Folders to scan (one per line)" Height="28" HorizontalAlignment="Left" Name="label1" VerticalAlignment="Top" Margin="12,0,0,0" />
         <TextBox Height="104" HorizontalAlignment="Left" Margin="12,25,0,0" Name="tbDirectories" VerticalAlignment="Top" Width="254" Text="c:\torrent" AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" />
         <Button Content="Auto scan" Height="23" HorizontalAlignment="Left" Margin="93,135,0,0" Name="button1" VerticalAlignment="Top" Width="75" Click="button1_Click" />
-        <TextBox Margin="12,225,12,12" Name="tbLog" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
+        <TextBox Margin="12,225,12,12" Name="tbLog" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" UndoLimit="0" />
         <Button Height="23" HorizontalAlignment="Left" Margin="151,184,0,0" Name="btWeb" VerticalAlignment="Top" Width="162" Click="btWeb_Click" />
     </Grid>
 </Window>
