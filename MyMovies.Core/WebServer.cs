@@ -116,10 +116,8 @@ namespace MyMovies.Core
 
                 if (path == "/*play")
                 {
-                    var f = o["f"];
-                    if (DM.Instance.GetMovieByFile(f) != null)
+                    if(DM.Instance.PlayFile(o["f"]))
                     {
-                        Process.Start(f);
                         DoJsonpResponse(request, response, o, "{success:true}");
                         return;
                     }

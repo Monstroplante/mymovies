@@ -75,7 +75,7 @@ namespace MyMovies
                     scanLog.Info("Scan started!");
                     foreach (String path in dirs.SelectMany(Scanner.GetFiles))
                     {
-                        if(DM.GetMovieByFile(path) != null)
+                        if(DM.Instance.HasFile(path))
                             continue;
                         scanLog.Info(path);
 
@@ -85,22 +85,28 @@ namespace MyMovies
                             if(m == null)
                             {
                                 scanLog.Info(">> ignored");
+                                DM.AddSkipped(path);
+                                continue;
                             }
-                            else
-                            {
-                                scanLog.Info(">> found: " + m.Title + " " + m.Year);
-                                DM.AddMovie(m);
+                            scanLog.Info(">> found: " + m.Title + " " + m.Year);
+                            DM.AddMovie(m);
 
-                                Dispatcher.BeginInvoke(DispatcherPriority.Send, new DispatcherOperationCallback(delegate
-                                {
-                                    UpdateTitle();
-                                    return null;
-                                }), null);
-                            }
+                            Dispatcher.BeginInvoke(DispatcherPriority.Send, new DispatcherOperationCallback(delegate
+                            {
+                                UpdateTitle();
+                                return null;
+                            }), null);
                         }
                         catch(Exception ex)
                         {
-                            scanLog.Error(ex is Scanner.NoMatchFoundException ? ">> NO MATCH FOUND" : ex.Message);
+                            if (ex is Scanner.NoMatchFoundException)
+                            {
+                                DM.AddUnmatched(path);
+                                scanLog.Info(">> NO MATCH FOUND");
+                                continue;
+                            }
+                                
+                            scanLog.Error(ex.Message);
                         }
                     }
                     return "";
