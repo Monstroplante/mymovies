@@ -130,7 +130,7 @@ namespace Helper
             var imdb = new IMDBClient();
             var f = Scanner.ParseMovieName(path);
 
-            if (f.ShouldBeIgnored)
+            if (f.ShouldBeIgnored || f.GuessedTitle.IsNullOrEmpty())
                 return null;
 
             var m = imdb.Find(f.GuessedTitle + " " + f.GuessedYear).FirstOrDefault();
