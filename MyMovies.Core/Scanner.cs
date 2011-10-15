@@ -125,10 +125,10 @@ namespace Helper
 
         public class NoMatchFoundException : Exception{}
 
-        public static Movie FetchMovie(String path)
+        public static Movie FetchMovie(String file)
         {
             var imdb = new IMDBClient();
-            var f = Scanner.ParseMovieName(path);
+            var f = Scanner.ParseMovieName(file);
 
             if (f.ShouldBeIgnored || f.GuessedTitle.IsNullOrEmpty())
                 return null;
@@ -136,6 +136,14 @@ namespace Helper
             var m = imdb.Find(f.GuessedTitle + " " + f.GuessedYear).FirstOrDefault();
             if (m == null)
                 throw new NoMatchFoundException();
+
+            return FetchMovie(file, m.tconst);
+        }
+
+        public static Movie FetchMovie(String file, String imdbId)
+        {
+            var imdb = new IMDBClient();
+            var m = imdb.GetDetails(imdbId);
 
             String cover = null;
             if (m.image != null && !m.image.url.IsNullOrEmpty())
@@ -151,9 +159,7 @@ namespace Helper
                 }
             }
 
-            var detail = imdb.GetDetails(m.tconst);
-
-            var movie = new Movie(f, detail, cover);
+            var movie = new Movie(file, m, cover);
             return movie;
         }
     }

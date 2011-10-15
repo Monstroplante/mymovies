@@ -102,7 +102,7 @@ namespace MyMovies
                             if (ex is Scanner.NoMatchFoundException)
                             {
                                 DM.AddUnmatched(path);
-                                scanLog.Info(">> NO MATCH FOUND");
+                                scanLog.Warn(">> no match found");
                                 continue;
                             }
                                 

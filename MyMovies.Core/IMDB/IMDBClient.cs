@@ -53,6 +53,7 @@ namespace Helper.IMDB
 
         public List<JsonFind.List> Find(String q)
         {
+            q = (q ?? "").Trim();
             //Try to extract year from query
             int? year = null;
             var match = RegExtractTitleAndYear.Match(q);

@@ -10,22 +10,48 @@ namespace MyMovies.Core
 {
     public class Movie
     {
-        public List<String> Files = new List<String>();
-        public List<String> Principals = new List<String>();
-        public List<String> Directors = new List<String>();
-        public List<String> Writers = new List<String>();
-        public List<String> Genres = new List<String>();
-        public String Title;
-        public int? Year;
-        public String ImdbId;
-        public double? ImdbRating;
-        public String Cover;
-        public DateTime DateAdded;
-        public int? Duration;
-        public String Plot;
-        public String GuessedTitle;
+        public List<String> Files { get; set; }
+        public List<String> Principals { get; set; }
+        public List<String> Directors { get; set; }
+        public List<String> Writers { get; set; }
+        public List<String> Genres { get; set; }
+        public String Title { get; set; }
+        public int? Year { get; set; }
+        public String ImdbId { get; set; }
+        public double? ImdbRating { get; set; }
+        public String Cover { get; set; }
+        public DateTime DateAdded { get; set; }
+        public int? Duration { get; set; }
+        public String Plot { get; set; }
+        public String GuessedTitle { get; set; }
 
-        public Movie(MovieInfos file, JsonMainDetails.Data infos, String coverFileName)
+        public int HashCode
+        {
+            get { return GetHashCode(); }
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int result = Title != null ? Title.GetHashCode() : 0;
+                result = (result * 397) ^ (Year.HasValue ? Year.Value : 0);
+                result = (result * 397) ^ (ImdbId != null ? ImdbId.GetHashCode() : 0);
+                result = (result * 397) ^ (ImdbRating.HasValue ? ImdbRating.Value.GetHashCode() : 0);
+                result = (result * 397) ^ (Cover != null ? Cover.GetHashCode() : 0);
+                result = (result * 397) ^ DateAdded.GetHashCode();
+                result = (result * 397) ^ (Duration.HasValue ? Duration.Value : 0);
+                result = (result * 397) ^ (Plot != null ? Plot.GetHashCode() : 0);
+                result = (result * 397) ^ (GuessedTitle != null ? GuessedTitle.GetHashCode() : 0);
+
+                foreach (var s in Files.Concat(Principals).Concat(Directors).Concat(Genres).Concat(Writers))
+                    result = (result * 397) ^ (s != null ? s.GetHashCode() : 0);
+
+                return result;
+            }
+        }
+
+        public Movie(String file, JsonMainDetails.Data infos, String coverFileName) : this()
         {
             DateAdded = DateTime.Now;
 
@@ -38,22 +64,28 @@ namespace MyMovies.Core
             if (infos.plot != null)
                 Plot = infos.plot.outline;
             ImdbId = infos.tconst;
-            Principals = infos.cast_summary.NoNull().ConvertAll(p => p.name.name).ToList();
-            Directors = infos.directors_summary.NoNull().ConvertAll(p => p.name.name).ToList();
-            Writers = infos.writers_summary.NoNull().ConvertAll(p => p.name.name).ToList();
-            Genres = infos.genres.ToList();
+            Principals.AddRange(infos.cast_summary.NoNull().ConvertAll(p => p.name.name));
+            Directors.AddRange(infos.directors_summary.NoNull().ConvertAll(p => p.name.name));
+            Writers.AddRange(infos.writers_summary.NoNull().ConvertAll(p => p.name.name));
+            Genres.AddRange(infos.genres.NoNull());
             ImdbRating = infos.rating;
             if (infos.runtime != null)
                 Duration = infos.runtime.time;
 
-            GuessedTitle = (file.GuessedTitle + " " + file.GuessedYear).Trim();
-            Files.Add(file.Path);
+            Files.Add(file);
             Cover = coverFileName;
         }
 
         /// <summary>
         /// Required for json deserialization
         /// </summary>
-        public Movie(){}
+        public Movie()
+        {
+            Files = new List<String>();
+            Principals = new List<String>();
+            Directors = new List<String>();
+            Writers = new List<String>();
+            Genres = new List<String>();
+        }
     }
 }

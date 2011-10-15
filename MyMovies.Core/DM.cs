@@ -32,7 +32,10 @@ namespace MyMovies.Core
             {
                 using (Stream s = File.OpenRead(@"C:\Users\Tom\projects\MyMovies\trunk\MyMovies.UI\bin\Debug\data.json"))
                 {
-                    _data = (DataBase)new Serializer(typeof(DataBase)).Deserialize(s);
+                    var serializer = new Serializer(typeof (DataBase));
+                    serializer.Config.MissingPropertyAction = MissingPropertyOptions.Ignore;
+                    serializer.Config.IgnoredPropertyAction = SerializationContext.IgnoredPropertyOption.SetIfPossible;
+                    _data = (DataBase)serializer.Deserialize(s);
                 }
             }
             else
@@ -53,27 +56,41 @@ namespace MyMovies.Core
         {
             lock (_data)
             {
-                return new Serializer(typeof (DataBase)).Serialize(_data);
+                var serializer = new Serializer(typeof (DataBase));
+                return serializer.Serialize(_data);
             }
         }
 
         public void AddMovie(Movie movie)
         {
+            foreach (var f in movie.Files)
+                RemoveFile(f);
             lock (_data)
             {
-                foreach (var file in movie.Files)
-                {
-                    _data.Unmatched.Remove(file);
-                    _data.Ignored.Remove(file);
-                    _data.Skipped.Remove(file);
-                }
-                if (_data.Movies.Any(o => o.Files.Intersect(movie.Files).Any()))
-                    throw new Exception("This file is already in collection");
                 var m = movie.ImdbId.IsNullOrEmpty() ? null : _data.Movies.FirstOrDefault(o => o.ImdbId == movie.ImdbId);
                 if(m != null)
-                    m.Files = m.Files.Concat(movie.Files).Distinct().OrderBy(s => s).ToList();
-                else
-                    _data.Movies.Add(movie);
+                {
+                    movie.Files.AddRange(m.Files);
+                    _data.Movies.Remove(m);
+                }
+                movie.Files.Sort();
+                _data.Movies.Add(movie);
+            }
+        }
+
+        public void RemoveFile(String file)
+        {
+            lock (_data)
+            {
+                _data.Unmatched.Remove(file);
+                _data.Ignored.Remove(file);
+                _data.Skipped.Remove(file);
+                foreach (var m in _data.Movies)
+                {
+                    m.Files.Remove(file);
+                    if (m.Files.Count < 1)
+                        _data.Movies.Remove(m);
+                }
             }
         }
 
