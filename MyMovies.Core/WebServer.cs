@@ -51,14 +51,12 @@ namespace MyMovies.Core
         {
             Port = port;
             Stop();
-            var scheduler = new KayakScheduler(new SchedulerDelegate());
-            scheduler.Post(() =>
-            {
-                KayakServer.Factory
-                    .CreateHttp(new RequestDelegate())
-                    .Listen(new IPEndPoint(IPAddress.Any, port));
-            });
-            thread = new Thread(() => scheduler.Start());
+            var scheduler = KayakScheduler.Factory.Create(new SchedulerDelegate());
+            scheduler.Post(() => KayakServer.Factory
+                .CreateHttp(new RequestDelegate(), scheduler)
+                .Listen(new IPEndPoint(IPAddress.Any, port))
+            );
+            thread = new Thread(scheduler.Start);
             thread.Start();
         }
 
@@ -74,7 +72,7 @@ namespace MyMovies.Core
             public void OnException(IScheduler scheduler, Exception e)
             {
                 Debug.WriteLine("Error on scheduler.");
-                e.DebugStacktrace();
+                e.DebugStackTrace();
             }
 
             public void OnStop(IScheduler scheduler)
@@ -85,9 +83,9 @@ namespace MyMovies.Core
 
         class RequestDelegate : IHttpRequestDelegate
         {
-            private static Regex RegScaleFormat = new Regex(@"^(\d*)x(\d*)([cs]*)$", RegexOptions.Compiled);
+            private static readonly Regex RegScaleFormat = new Regex(@"^(\d*)x(\d*)([cs]*)$", RegexOptions.Compiled);
 
-            private String QueryPathToFile(String queryPath)
+            private static String QueryPathToFile(String queryPath)
             {
                 queryPath = (queryPath ?? "").Replace('/', Path.DirectorySeparatorChar);
                 if(queryPath.StartsWith(Path.DirectorySeparatorChar.ToString()))
