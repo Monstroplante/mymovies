@@ -85,12 +85,27 @@ namespace MyMovies.Core
                 _data.Unmatched.Remove(file);
                 _data.Ignored.Remove(file);
                 _data.Skipped.Remove(file);
-                foreach (var m in _data.Movies)
+                for(int i = 0; i < _data.Movies.Count; i++)
                 {
+                    var m = _data.Movies[i];
                     m.Files.Remove(file);
                     if (m.Files.Count < 1)
-                        _data.Movies.Remove(m);
+                    {
+                        _data.Movies.RemoveAt(i);
+                        i--;
+                    }
                 }
+            }
+        }
+
+        public List<String> GetAllFiles()
+        {
+            lock(_data)
+            {
+                return _data.Movies.SelectMany(m => m.Files)
+                    .Concat(_data.Ignored)
+                    .Concat(_data.Skipped)
+                    .ToList();
             }
         }
 

@@ -73,6 +73,17 @@ namespace MyMovies
                 directories,
                 dirs => {
                     scanLog.Info("Scan started!");
+
+                    //Dlete missing movies
+                    int cmpt= 0;
+                    foreach (var path in DM.Instance.GetAllFiles().Where(p => !File.Exists(p)))
+                    {
+                        DM.RemoveFile(path);
+                        cmpt++;
+                    }
+                    scanLog.Info(cmpt + " missing files deleted");
+
+                    //Search for new movies);
                     foreach (String path in dirs.SelectMany(Scanner.GetFiles))
                     {
                         if(DM.Instance.HasFile(path))
