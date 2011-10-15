@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TestIMDB.cs" />
+    <Compile Include="TestMovie.cs" />
     <Compile Include="TestScanner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

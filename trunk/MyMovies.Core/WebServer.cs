@@ -8,6 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using Helper;
+using Helper.IMDB;
+using JsonExSerializer;
 using Kayak;
 using Kayak.Http;
 using System.Net;
@@ -123,6 +126,27 @@ namespace MyMovies.Core
                     }
                 }
 
+                if (path == "/*searchImdb")
+                {
+                    var q = o["q"];
+                    if (q.IsNullOrEmpty())
+                    {
+                        var g = Scanner.ParseMovieName(o["f"]);
+                        q = g.GuessedTitle + " " + g.GuessedYear;
+                    }
+
+                    var results = new IMDBClient().Find(q);
+                    DoJsonpResponse(request, response, o, new Serializer(typeof(SearchImdb)).Serialize(new SearchImdb(q, results)));
+                    return;
+                }
+
+                if (path == "/*setMatch")
+                {
+                    DM.Instance.AddMovie(Scanner.FetchMovie(o["f"], o["id"]));
+                    DoJsonpResponse(request, response, o, DM.Instance.GetJson());
+                    return;
+                }
+
                 //TODO: resize image in a thread
                 if (path.StartsWith("/*scale/"))
                 {
@@ -235,6 +259,30 @@ namespace MyMovies.Core
         public static String GetHomeUrl()
         {
             return String.Format("http://{0}:{1}", Network.GetLocalIp(), Port);
+        }
+
+        public class SearchImdb
+        {
+            public List<Result> Results;
+            public String Q;
+
+            public SearchImdb(String q, List<JsonFind.List> results)
+            {
+                Q = q;
+                Results = results.ConvertAll(r => new Result(r)).ToList();
+            }
+            public class Result
+            {
+                public String ImdbId;
+                public String Title;
+                public String Infos;
+                public Result(JsonFind.List r)
+                {
+                    Title = (r.title + " " + r.year).Trim();
+                    Infos = r.principals.NoNull().Where(p => p != null).ConvertAll(p => p.name).Join(", ");
+                    ImdbId = r.tconst;
+                }
+            }
         }
     }
 }

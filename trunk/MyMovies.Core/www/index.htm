@@ -10,23 +10,47 @@
         <link rel="stylesheet" type="text/css" href="themes/dark/style.css"/>
     </head>
     <body>
-		<div class="sitecontainer">
-			<div class="movies"></div>
-			<div id="templates">
-				<div class="movieclassic">
-					<img class="cover" />
-					<div class="content">
-						<div class="title"></div>
-						<div class="principals"></div>
-						<div class="genres"></div>
-						<div class="plot"></div>
-						<span class="star hidden"></span>
-						<a class="play">Play</a>
-						<a class="showfiles"></a>
-						<div class="files hidden"></div>
-					</div>
-                    <div class="clear"></div>
+		<div id="modal">
+			msqdfqsdf
+		</div>
+		<div id="header">
+			<a id="btunmatched" class="hidden">Unmathched</a>
+		</div>
+		<div id="movieswrapper">
+			<div id="movies"></div>
+		</div>
+		
+		<div id="templates">
+			<div class="movieclassic">
+				<img class="cover" />
+				<div class="content">
+					<div class="title"></div>
+					<div class="principals"></div>
+					<div class="genres"></div>
+					<div class="plot"></div>
+					<span class="star hidden"></span>
+					<a class="play">Play</a>
+					<a class="showfiles"></a>
+					<div class="files hidden"></div>
 				</div>
+				<div class="clear"></div>
+			</div>
+			<div class="matcher">
+				<div class="content">
+					<a class="file"></a>
+					<br/>
+					<input type="text" name="q"/>
+					-
+					<a class="btignore">Add to ignore list</a>
+					-
+					<a class="btskip">Skip</a>
+				</div>
+				<div class="results"></div>
+			</div>
+			<div class="result">
+				<a class="btok"></a>
+				<b class="title"></b><br/>
+				<span class="infos"></span>
 			</div>
 		</div>
         <script type="text/javascript">
@@ -40,37 +64,108 @@
 					}
 				};
 				
-				var play = function(f){
-					return $.get(base + '/*play', { f: f });
-				};
-				
-				//live events
-				$('.movies .showfiles').live('click', function(){
-					var e = $(this);
-					var div = $('.files', e.parent());
-					var files = e.m().Files;
-					if(div.is(':empty')){
-						$.each(files, function(i,v){
-							$('<a/>').text(v).click(function(){
-								play(v);
-							}).appendTo(div);
+				var srv = {
+					call:function(action, params, cb){
+						return $.getJSON(base + '/*' + action + '?jsonp=?', params, cb);
+					},
+					play:function(f){
+						return this.call('play', { f: f });
+					},
+					getData:function(cb){
+						return this.call('movies', cb);
+					},
+					searchImdb:function(f, q, cb){
+						return this.call('searchImdb', { f: f, q:q }, cb);
+					},
+					setMatch: function(f, id){
+						return this.call('setMatch', {f:f, id:id}, function(o){
+							setData(o);
 						});
 					}
-					div.slideToggle(Math.min(500, files.length * 20));
-				});
-				$('.movies .play').live('click', function () {
-					play($(this).m().Files[0]);
-				});
+				};
 				
+				var movies = $('#movies');
+				var modal = $('#modal');
+				var btUnmatched = $('#btunmatched');
+				var templates = $('#templates');
 				//Usefull to test/edit layout
 				var base = window.location.href.indexOf('file://') === 0
 					? 'http://localhost:8080' : '';
-                $.getJSON(base + '/*movies?jsonp=?', function (o) {
-                    var template = $('#templates .movieclassic').clone();
+					
+				function showModal(v){
+					modal.empty().append(v);
+					if(!modal.is(':visible'))
+						modal.slideDown(200);
+				}
+				
+				function hideModal(){
+					if(modal.is(':visible'))
+						modal.slideUp(200);
+				}
+				
+				function match(files, index){
+					index = index || 0;
+					if(files.length <= index){
+						hideModal();
+						return;
+					}
+					var f = files[index];
+					var v = getTemplate('matcher');
+					$('.btskip', v).click(function(){
+						match(files, index+1);
+					});
+					
+					$('.btignore', v).click(function(){
+						//todo: add to ignore list
+						match(files, index+1);
+					});
+					var xhr;
+					var field = $('[name=q]', v);
+					var search = function(f, q){
+						if(xhr)
+							xhr.abort();
+						xhr = srv.searchImdb(f, q, function(o){
+							xhr = null;
+							if(!field.val())
+								field.val(o.Q);
+							var div = $('.results', v).empty();
+							var t = getTemplate('result');
+							if(!o.Results.length)
+								div.append($('<div/>').addClass('noresult').text('No result'));
+							$.each(o.Results, function(k, r){
+								var e = t.clone();
+								$('.title', e).text(r.Title);
+								$('.infos', e).text(r.Infos);
+								e.click(function(){
+									srv.setMatch(f, r.ImdbId);
+									match(files, index+1);
+								});
+								div.append(e);
+							});
+						});
+					};
+					
+					$('.file', v).text(f).click(function(){srv.play(f);});
+					field.keypress(function(e){
+						if((e.keyCode || e.which) != 13)
+							return;
+						search(f, field.val());
+					});
+					
+					search(f);
+					showModal(v);
+				}
+				
+				function getTemplate(c){
+					return $('.' + c, templates).clone();
+				}
+				
+				function updateMovies(ms){
+					movies.empty();
+					var template = getTemplate('movieclassic');
 					var t1 = $.now();
-					var div = $('.movies');
-                    for(var i in o.Movies) {
-                        var m = o.Movies[i];
+                    for(var i in ms) {
+                        var m = ms[i];
                         var e = template.clone().data('m', m);
                         $('.cover', e).attr('src', base + '/*scale/300x/' + (m.Cover ? 'covers/' + m.Cover : 'img/nocover.jpg'));
                         $('.title', e).text(m.Title + (m.Year ? ' - ' + m.Year : ''));
@@ -81,9 +176,41 @@
 							$('.star', e).removeClass('hidden').text(m.ImdbRating);
 						$('.showfiles', e).text(m.Files.length + ' file' + (m.Files.length > 1 ? 's':''))
 						
-                        div.append(e);
+                        movies.append(e);
                     }
-					console.log('rendered ' + o.length + ' elements in ' + ($.now() - t1) + 'ms');
+					console.log('rendered ' + ms.length + ' elements in ' + ($.now() - t1) + 'ms');
+				}
+				
+				function setData(data){
+					updateMovies(data.Movies);
+					btUnmatched
+						.text(data.Unmatched.length + ' unmatched')
+						.toggle(data.Unmatched.length ? true : false).unbind().click(function(){
+							match(data.Unmatched);
+						});
+				}
+				
+				//live events
+				$('.showfiles', movies).live('click', function(){
+					var e = $(this);
+					var div = $('.files', e.parent());
+					var files = e.m().Files;
+					if(div.is(':empty')){
+						$.each(files, function(i,v){
+							$('<a/>').addClass('file').text(v).click(function(){
+								srv.play(v);
+							}).appendTo(div);
+						});
+					}
+					div.slideToggle(Math.min(500, files.length * 20));
+				});
+				
+				$('.play', movies).live('click', function () {
+					srv.play($(this).m().Files[0]);
+				});
+				
+                srv.getData(function (o) {
+                    setData(o);
                 });
             });
         </script>
