@@ -43,7 +43,7 @@ namespace Monstro.Util.Test
             foreach(var o in expected)
             {
                 String format = new object[] { o.maxW, 'x', o.maxH, o.crop ? "crop" : null, o.strech ? "stretch" : null }
-                    .ConvertAll(p => p == null ? "" : p.ToString())
+                    .Select(p => p == null ? "" : p.ToString())
                     .Join("");
 
                 var result = ImgUtil.Scale(b, o.maxW, o.maxH, o.crop, o.strech);

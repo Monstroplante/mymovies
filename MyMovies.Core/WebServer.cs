@@ -277,7 +277,7 @@ namespace MyMovies.Core
                 public Result(JsonFind.List r)
                 {
                     Title = (r.title + " " + r.year).Trim();
-                    Infos = r.principals.NoNull().Where(p => p != null).ConvertAll(p => p.name).Join(", ");
+                    Infos = r.principals.NoNull().Where(p => p != null).Select(p => p.name).Join(", ");
                     ImdbId = r.tconst;
                 }
             }

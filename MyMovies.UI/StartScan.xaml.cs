@@ -29,7 +29,7 @@ namespace MyMovies
         {
             Reactor.Run(
                 TbPath.Text,
-                path => Scanner.GetFiles(path).ConvertAll(Scanner.ParseMovieName).ToList(),
+                path => Scanner.GetFiles(path).Select(Scanner.ParseMovieName).ToList(),
                 movies =>{
                     if (movies.Any())
                     {

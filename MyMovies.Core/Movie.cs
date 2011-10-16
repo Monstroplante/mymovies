@@ -64,9 +64,9 @@ namespace MyMovies.Core
             if (infos.plot != null)
                 Plot = infos.plot.outline;
             ImdbId = infos.tconst;
-            Principals.AddRange(infos.cast_summary.NoNull().ConvertAll(p => p.name.name));
-            Directors.AddRange(infos.directors_summary.NoNull().ConvertAll(p => p.name.name));
-            Writers.AddRange(infos.writers_summary.NoNull().ConvertAll(p => p.name.name));
+            Principals.AddRange(infos.cast_summary.NoNull().Select(p => p.name.name));
+            Directors.AddRange(infos.directors_summary.NoNull().Select(p => p.name.name));
+            Writers.AddRange(infos.writers_summary.NoNull().Select(p => p.name.name));
             Genres.AddRange(infos.genres.NoNull());
             ImdbRating = infos.rating;
             if (infos.runtime != null)
