@@ -16,7 +16,7 @@ namespace FileScanner
         static void Main(string[] args)
         {
             var curdir = Directory.GetCurrentDirectory();
-            var movies = Scanner.GetFiles(@"C:\torrent\films").ConvertAll(Scanner.ParseMovieName);
+            var movies = Scanner.GetFiles(@"C:\torrent\films").Select(Scanner.ParseMovieName);
 
             movies = movies
                 //.Where(m => !TestScanner.Good.Any(g => g.File == m.Path))

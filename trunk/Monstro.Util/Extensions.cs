@@ -97,7 +97,7 @@ namespace System
         /// </summary>
         public static IEnumerable<String> SplitEscaped(this String s)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             for (int i = 0; i < s.Length; i++)
             {
                 if (s[i] == '|')
@@ -234,11 +234,10 @@ namespace System
         public static String Js(this String s, bool strict)
         {
             if (string.IsNullOrEmpty(s))
-                return "";
+                return String.Empty;
 
             int len = s.Length;
-            StringBuilder sb = new StringBuilder(len + 4);
-
+            var sb = new StringBuilder((int)(len * 1.1));
             for (int i = 0; i < len; i += 1)
             {
                 char c = s[i];
@@ -280,7 +279,7 @@ namespace System
         {
             if (String.IsNullOrEmpty(s))
                 return s;
-            StringBuilder w = new StringBuilder();
+            var w = new StringBuilder();
             for (; ; )
             {
                 int pos = s.IndexOf(' ');
@@ -323,15 +322,13 @@ namespace System
         /// </summary>
         public static bool IsBetween(this int i, int min, int max)
         {
-            if (i < min)
-                return false;
-            return i <= max;
+            return i < min && i <= max;
         }
 
         /// <summary>
-        /// Force this in the given bounds
+        /// Force this in the given inclusive bounds
         /// </summary>
-        public static int Bound(this int i, int? min, int? max)
+        public static int MinMax(this int i, int? min, int? max)
         {
             if (min != null && max != null && min > max)
                 throw new ArgumentException("min > max");
@@ -351,27 +348,12 @@ namespace System
         /// </summary>
         public static bool IsBetween(this double i, double min, double max)
         {
-            if (i < min)
-                return false;
-            return i <= max;
+            return i < min && i <= max;
         }
 
         public static String ToInvariantString(this double i)
         {
             return i.ToString(CultureInfo.InvariantCulture);
-        }
-    }
-}
-
-namespace System.Web.UI.HtmlControls
-{
-    public static class ExtHtmlControl
-    {
-        public static void AddCssClass(this HtmlControl c, string cssClass)
-        {
-            string initialCss = c.Attributes["class"];
-            string newCss = (string.IsNullOrEmpty(initialCss) ? "" : initialCss + " ") + cssClass;
-            c.Attributes.Add("class", newCss);
         }
     }
 }
@@ -445,17 +427,8 @@ namespace System.Collections.Generic
         public static String JoinEscaped(this IEnumerable<String> e)
         {
             return e
-                .ConvertAll(s => s == null ? s : s.Replace(@"\", @"\\").Replace("|", @"\|"))
+                .Select(s => s == null ? s : s.Replace(@"\", @"\\").Replace("|", @"\|"))
                 .Join("|");
-        }
-
-        public static IEnumerable<TOutput> ConvertAll<T, TOutput>(this IEnumerable<T> collection, Converter<T, TOutput> converter)
-        {
-            if (converter == null)
-                throw new ArgumentNullException("converter");
-
-            foreach (T i in collection)
-                yield return converter(i);
         }
 
         public static IEnumerable<T> ConcatValue<T>(this IEnumerable<T> e, T value)
@@ -514,10 +487,8 @@ namespace System.Collections.Generic
             if (source == null) throw new ArgumentNullException("source");
             if (keySelector == null) throw new ArgumentNullException("keySelector");
             if (comparer == null) throw new ArgumentNullException("comparer");
-            HashSet<TKey> knownKeys = new HashSet<TKey>(comparer);
-            foreach (TSource element in source)
-                if (knownKeys.Add(keySelector(element)))
-                    yield return element;
+            var knownKeys = new HashSet<TKey>(comparer);
+            return source.Where(element => knownKeys.Add(keySelector(element)));
         }
 
         public static IEnumerable<T> Prepend<T>(this IEnumerable<T> e, T value)

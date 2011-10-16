@@ -60,7 +60,7 @@ namespace MyMovies
         {
             var scanLog = new Log("scan");
             var directories = tbDirectories.Text.Split('\n')
-                .ConvertAll(s => s.TrimOrNull())
+                .Select(s => s.TrimOrNull())
                 .Where(s => s != null)
                 .ToArray();
             if(directories.Length < 1)

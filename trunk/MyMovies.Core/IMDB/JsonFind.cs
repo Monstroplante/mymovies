@@ -42,7 +42,7 @@ namespace Helper.IMDB
                 {
                     if (principals == null || !principals.Any())
                         return null;
-                    return "With: " + principals.ConvertAll(p => p.name).Join(" - ");
+                    return "With: " + principals.Select(p => p.name).Join(" - ");
                 }
             }
 
