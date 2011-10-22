@@ -30,15 +30,13 @@
 					<p class="genres"></p>
 					<p class="plot"></p>
 					<p class="actions">
-						<a class="star hidden"></a>
-						<a class="play">Play</a>
-						<a class="showfiles"></a>
-						<a class="allocine">Allociné</a>
-						<a class="delmatch">Delete</a>
+						<a class="star" target="_blank"></a> <span class="sep"></span>
+						<a class="allocine" target="_blank">Allociné</a> <span class="sep"></span>
+						<a class="play">Play</a> <span class="sep"></span>
+						<a class="showfiles"></a> <span class="sep"></span>
+						<a class="delmatch">Delete match</a>
 					</p>
-					<p>
-						<div class="files hidden"></div>
-					</p>
+					<p class="files hidden"></p>
 				</div>
 				<div class="clear"></div>
 			</div>
@@ -176,15 +174,13 @@
                         var e = template.clone().data('m', m);
                         $('.cover', e).attr('src', base + '/*scale/300x/' + (m.Cover ? 'covers/' + m.Cover : 'img/nocover.jpg'));
                         $('h2', e).text(m.Title + (m.Year ? ' - ' + m.Year : ''));
-                        $('.directors', e).text('By: ' + m.Directors.join(' - ')).toggle(m.Directors.length);
-                        $('.principals', e).text('With: ' + m.Principals.join(' - ')).toggle(m.Principals.length);
+                        $('.directors', e).text('By: ' + m.Directors.join(' - ')).toggle(!!m.Directors.length);
+                        $('.principals', e).text('With: ' + m.Principals.join(' - ')).toggle(!!m.Principals.length);
 						$('.genres', e).text(m.Genres.join(' - '));
 						$('.plot', e).text(m.Plot);
                         $('.allocine', e).attr('href', 'http://www.google.fr/search?' + $.param({hl:'fr', btnI:'J\'ai de la chance', q:
                             'site:allocine.fr/film ' + m.Title}));
-
-						if(m.ImdbRating)
-						    $('.star', e).removeClass('hidden').text(m.ImdbRating + ' on IMDB').attr('href', 'http://imdb.com/title/' + m.ImdbId);
+						$('.star', e).text((m.ImdbRating || 'No rating')+ ' on IMDB').attr('href', 'http://imdb.com/title/' + m.ImdbId);
 						$('.showfiles', e).text(m.Files.length + ' file' + (m.Files.length > 1 ? 's':''))
 						
                         movies.append(e);
@@ -204,7 +200,7 @@
 				//live events
 				$('.showfiles', movies).live('click', function () {
 				    var e = $(this);
-				    var div = $('.files', e.parent());
+				    var div = $('.files', e.closest('.content'));
 				    var files = e.m().Files;
 				    if (div.is(':empty')) {
 				        $.each(files, function (i, v) {
