@@ -1,5 +1,4 @@
-﻿body{background:url(bg.png) 50% 0; font-family:Trebuchet ms; color:#FFF;}
-body{margin:0; padding:0; font-family:Arial; padding:0;}
+﻿body{background:#383f4a url(bg.png) 50% 0; font-family:Trebuchet ms; color:#FFF; margin:0; padding:0; font-family:Arial; padding:0;font-size:16px;}
 img{image-rendering: optimizeSpeed;}
 a{text-decoration:none; cursor:pointer; color:#FFF;}
 a:hover{text-shadow: 0 0 5px #fff;}
@@ -31,7 +30,9 @@ a:hover{text-shadow: 0 0 5px #fff;}
 .movieclassic .content{margin-left:220px;}
 .movieclassic .files a{margin-bottom:5px;}
 .movieclassic p{margin:10px 0 0 0;}
-.movieclassic .actions a{margin:0 30px 0 0;}
+.movieclassic .actions .sep{margin:0 15px; height:22px; vertical-align:middle;
+	display:inline-block; border-left:1px solid #373b42; border-right:1px solid #545b66;}
+.movieclassic .actions{margin-top:20px;}
 
 
 .stars, .stars div{height:14px;background:url(img/stars.png); background-size:16px 32px;}
