@@ -10,11 +10,11 @@
         <link rel="stylesheet" type="text/css" href="themes/dark/style.css"/>
     </head>
     <body>
-		<div id="modal">
-			msqdfqsdf
-		</div>
+		<div id="modal"></div>
 		<div id="header">
 			<a id="btunmatched" class="hidden">Unmathched</a>
+			-
+			<a class="btrefresh">Refresh <span class="refreshtime">0</span>ms</a>
 		</div>
 		<div id="movieswrapper">
 			<div id="movies"></div>
@@ -189,12 +189,14 @@
 				}
 				
 				function setData(data){
+					var d1 = new Date().getTime();
 					updateMovies(data.Movies);
 					btUnmatched
 						.text(data.Unmatched.length + ' unmatched')
 						.toggle(data.Unmatched.length ? true : false).unbind().click(function(){
 							match(data.Unmatched);
 						});
+					$('.refreshtime').text(new Date().getTime() - d1);
 				}
 				
 				//live events
@@ -221,9 +223,16 @@
 					srv.play($(this).m().Files[0]);
 				});
 				
-                srv.getData(function (o) {
-                    setData(o);
-                });
+				var refresh = function(){
+					srv.getData(function (o) {
+						setData(o);
+					});
+				};
+				
+				$('.btrefresh').click(refresh);
+				
+				refresh();
+                
             });
         </script>
     </body>
