@@ -140,7 +140,18 @@ namespace MyMovies.Core
 
                 if (path == "/*setMatch")
                 {
-                    DM.Instance.AddMovie(Scanner.FetchMovie(o["f"], o["id"]));
+                    var id = o["id"];
+                    var file = o["f"];
+                    if(!id.IsNullOrEmpty() || !file.IsNullOrEmpty())
+                    {
+                        if (id.IsNullOrEmpty())
+                            DM.Instance.AddUnmatched(file);
+                        else if(file.IsNullOrEmpty())
+                            DM.Instance.UnmatchMovie(id);
+                        else
+                            DM.Instance.AddMovie(Scanner.FetchMovie(file, id));
+                    }
+                    
                     DoJsonpResponse(request, response, o, DM.Instance.GetJson());
                     return;
                 }

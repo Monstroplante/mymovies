@@ -98,6 +98,19 @@ namespace MyMovies.Core
             }
         }
 
+        public void UnmatchMovie(String imdbId)
+        {
+            var movie = _data.Movies.FirstOrDefault(m => m.ImdbId == imdbId);
+            if(movie == null)
+                return;
+            lock (_data)
+            {
+                _data.Movies.Remove(movie);
+                foreach (var file in movie.Files)
+                    _data.Unmatched.Add(file);
+            }
+        }
+
         public List<String> GetAllFiles()
         {
             lock(_data)
@@ -140,6 +153,7 @@ namespace MyMovies.Core
 
         public void AddUnmatched(string path)
         {
+            RemoveFile(path);
             lock (_data)
             {
                 _data.Unmatched.Add(path);
@@ -148,6 +162,7 @@ namespace MyMovies.Core
 
         public void AddSkipped(string path)
         {
+            RemoveFile(path);
             lock (_data)
             {
                 _data.Skipped.Add(path);
