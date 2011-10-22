@@ -20,7 +20,14 @@ namespace Helper
         private const String Keywords = @"\b(divx\d?|xvid|dvdrip|dvd|french|vo|vf|cd\W?\d|720p|1080p|avi|BluRay|x264|H264|bdrip|brrip|aac|hd|2 Ch|fr|vost[a-z]{0,2}|rip)\b";
         static readonly Regex RegKeywords = new Regex(Keywords, CompiledIgnoreCase);
         static readonly Regex RegExtractTitleAndYear = new Regex(@"^(.+?)\b((?:1|2)[0-9o]{3})\b", CompiledIgnoreCase);
-        static readonly Regex RegSerial = new Regex(@"^(.+?)\b(?:s(?<s>\d{1,2})e\d{1,3}|(?<s>\d{1,2})x\d{1,3}|s(?<s>\d{1,2})|(season|saison)\W?(?<s>\d{1,2}))\b", CompiledIgnoreCase);
+        static readonly Regex RegSerial = new Regex(String.Format(@"^(.+?)\b(?:{0})\b", new[]{
+            @"s(?<s>\d{1,2})e\d{1,3}",
+            @"(?<s>\d{1,2})x\d{1,3}",
+            @"s(?<s>\d{1,2})",
+            @"(season|saison)\W?(?<s>\d{1,2})",
+            @"\s*[-.]\s*(?<s>0?\d)\d\d\b"
+        }.Join("|")), CompiledIgnoreCase);
+        static readonly Regex RegSerialFullPath = new Regex(@"\b((season|saison)\W?(?<s>\d{1,2})|s(?<s>\d{1,2}))\b", CompiledIgnoreCase);
         static readonly Regex RegExtractBeforeKeyword = new Regex(@"^(.+?)" + Keywords, CompiledIgnoreCase);
         static readonly Regex RegCleanup = new Regex(@"(^[.\-, ]+|[.\-, ]+$|[\.\[\]()_])", CompiledIgnoreCase);
         static readonly Regex RegCleanup2 = new Regex(@"\s+", CompiledIgnoreCase);
@@ -55,6 +62,7 @@ namespace Helper
         public static MovieInfos ParseMovieName(String path)
         {
             bool seeamsDuplicated = RegSeamsDuplicated.IsMatch(path);
+            RegSerialFullPath.Match(path);
             var parts = path.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries)
                 .Reverse().ToArray();
 
