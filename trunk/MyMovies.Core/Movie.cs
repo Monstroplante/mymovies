@@ -24,6 +24,7 @@ namespace MyMovies.Core
         public int? Duration { get; set; }
         public String Plot { get; set; }
         public String GuessedTitle { get; set; }
+        public List<String> Tags { get; set; }
 
         public int HashCode
         {
@@ -44,7 +45,7 @@ namespace MyMovies.Core
                 result = (result * 397) ^ (Plot != null ? Plot.GetHashCode() : 0);
                 result = (result * 397) ^ (GuessedTitle != null ? GuessedTitle.GetHashCode() : 0);
 
-                foreach (var s in Files.Concat(Principals).Concat(Directors).Concat(Genres).Concat(Writers))
+                foreach (var s in Files.Concat(Principals).Concat(Directors).Concat(Genres).Concat(Writers).Concat(Tags))
                     result = (result * 397) ^ (s != null ? s.GetHashCode() : 0);
 
                 return result;
@@ -86,6 +87,7 @@ namespace MyMovies.Core
             Directors = new List<String>();
             Writers = new List<String>();
             Genres = new List<String>();
+            Tags = new List<String>();
         }
     }
 }

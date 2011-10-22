@@ -168,6 +168,16 @@ namespace MyMovies.Core
                 _data.Skipped.Add(path);
             }
         }
+
+        public void SetTags(IEnumerable<String> tags, String id)
+        {
+            lock (_data)
+            {
+                var movie = _data.Movies.FirstOrDefault(m => m.ImdbId == id);
+                if(movie != null)
+                    movie.Tags = tags.ToList();
+            }
+        }
     }
 
     public class DataBase
@@ -176,5 +186,6 @@ namespace MyMovies.Core
         public HashSet<String> Unmatched = new HashSet<String>();
         public HashSet<String> Ignored = new HashSet<String>();
         public HashSet<String> Skipped = new HashSet<String>();
+        public HashSet<String> Tags = new HashSet<String>();
     }
 }
