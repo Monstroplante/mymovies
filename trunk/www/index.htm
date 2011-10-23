@@ -31,10 +31,18 @@
 		<img id="load" src="load.gif"/>
 		
 		<div id="templates">
+			<ul class="tageditor">
+				<li>
+					<div class="add">
+						<input type="text" class="addnew"/>
+					</div>
+				</li>
+			</ul>
 			<div class="movieclassic movieroot">
 				<img class="cover" />
 				<div class="content">
 					<h2></h2>
+					<p class="tags"></p>
                     <p class="genres"></p>
 					<p class="directors"></p>
                     <p class="principals"></p>
@@ -43,6 +51,7 @@
 						<a class="star" target="_blank"></a>
 						<a class="allocine" target="_blank">Allociné</a>
 						<a class="play">Play</a>
+						<a class="edittags">Tags</a>
 						<a class="showfiles"></a>
 						<a class="delmatch">Delete match</a>
 					</p>
@@ -89,6 +98,7 @@
 					? 'http://localhost:8080' : '';
 				var _jSort = $('#sort');
 				var _jDescending = $('#descending');
+				var _allTags = {};
 					
 				var _srv = {
 					call:function(action, params, cb){
@@ -105,6 +115,11 @@
 					},
 					setMatch: function(f, id){
 						return this.call('setMatch', {f:f || '', id:id || ''}, function(o){
+							setData(o);
+						});
+					},
+					setTag: function(tag, id, del){
+						return this.call('setTag', {tag:tag || '', id:id || '', del: del ? 1 : 0}, function(o){
 							setData(o);
 						});
 					}
@@ -180,11 +195,11 @@
 				
 				var movieclassicTemplate = getTemplate('movieclassic');
 				function makeMovieClassic(m){
-					console.debug('makeMovieClassic');
 					var e = movieclassicTemplate.clone().data('m', m);
 					$('.cover', e).attr('src', _baseUrl + '/*cover/300x/' + (m.Cover || ''));
 					$('h2', e).text(m.Title + (m.Year ? ' - ' + m.Year : ''));
 					$('.genres', e).text(Math.round(m.Duration/60) + ' min - ' + m.Genres.join(' - '));
+					$('.tags', e).text('Tags: ' + m.Tags.join(' - ')).toggle(!!m.Tags.length);
 					$('.directors', e).text('By: ' + m.Directors.join(' - ')).toggle(!!m.Directors.length);
 					$('.principals', e).text('With: ' + m.Principals.join(' - ')).toggle(!!m.Principals.length);
 					$('.plot', e).text(m.Plot);
@@ -215,6 +230,15 @@
 				
 				function setData(data){
 					_data = data;
+					_allTags = {};
+					for(var i in data.Movies){
+						var m = data.Movies[i];
+						for(var j in m.Tags){
+							var t = m.Tags[j];
+							_allTags[t] = (_allTags[t] + 1) || 1;
+						}
+					};
+					console.debug(_allTags);
 					refresh();
 				}
 				
@@ -266,6 +290,60 @@
 
 				$('.play', _jMovies).live('click', function () {
 					_srv.play($(this).m().Files[0]);
+				});
+				
+				$('.edittags', _jMovies).live('click', function () {
+					var e = $(this);
+					var offset = e.offset();
+					var mouseIn;
+					var editor = getTemplate('tageditor').css({
+                        top: offset.top + e.outerHeight(),
+                        left: offset.left
+                    }).hover(function(){ 
+						mouseIn=true; 
+					}, function(){ 
+						mouseIn=false; 
+					}).appendTo('body');
+
+					var hide = function(){
+						if(mouseIn)
+							return;
+						$("body").unbind('mousedown', hide);
+						editor.remove();
+					};
+					$("body").mousedown(hide);
+					
+					var m = e.m();
+					
+					//New tag
+					var liAddNew = $('.addnew', editor).keydown(function(e){
+						if(e.keyCode == 13){
+							_srv.setTag($(this).val(), m.ImdbId);
+							editor.remove();
+						}
+					}).closest('li');
+					
+					//Remove tag
+					$.each(m.Tags, function(i, t){
+						$('<a class="remove"/>')
+							.text(t)
+							.click(function(){
+								_srv.setTag(t, m.ImdbId, true);
+								editor.remove();
+							}).wrap('<li/>').parent().insertBefore(liAddNew);
+					});
+					
+					//Add tag
+					$.each(_allTags, function(t){
+						if($.inArray(t, m.Tags) >= 0)
+							return;
+						$('<a class="add"/>')
+							.text(t)
+							.click(function(){
+								_srv.setTag(t, m.ImdbId);
+								editor.remove();
+							}).wrap('<li/>').parent().insertBefore(liAddNew);
+					});
 				});
 				
 				var reload = function(){

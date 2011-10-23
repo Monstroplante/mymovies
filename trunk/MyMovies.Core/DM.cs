@@ -170,13 +170,22 @@ namespace MyMovies.Core
             }
         }
 
-        public void SetTags(IEnumerable<String> tags, String id)
+        public void SetTag(String tag, String id, bool del)
         {
+            tag = tag.TrimOrNull();
+            if(tag == null)
+                return;
             lock (_data)
             {
                 var movie = _data.Movies.FirstOrDefault(m => m.ImdbId == id);
-                if(movie != null)
-                    movie.Tags = tags.ToList();
+                if (movie != null)
+                {
+                    if (del)
+                        movie.Tags.Remove(tag);
+                    else
+                        movie.Tags.Add(tag);
+                }
+                    
             }
         }
     }

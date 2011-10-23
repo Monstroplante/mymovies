@@ -144,16 +144,28 @@ namespace MyMovies.Core
                     {
                         var id = o["id"];
                         var file = o["f"];
-                        if(!id.IsNullOrEmpty() || !file.IsNullOrEmpty())
+                        if (!id.IsNullOrEmpty() || !file.IsNullOrEmpty())
                         {
                             if (id.IsNullOrEmpty())
                                 DM.Instance.AddUnmatched(file);
-                            else if(file.IsNullOrEmpty())
+                            else if (file.IsNullOrEmpty())
                                 DM.Instance.UnmatchMovie(id);
                             else
                                 DM.Instance.AddMovie(Scanner.FetchMovie(file, id));
                         }
-                    
+
+                        ReplyJson(response, o, DM.Instance.GetJson());
+                        return;
+                    }
+
+                    if (path == "/*setTag")
+                    {
+                        var id = o["id"];
+                        var tag = o["tag"];
+                        bool del = o["del"] == "1";
+
+                        DM.Instance.SetTag(tag, id, del);
+
                         ReplyJson(response, o, DM.Instance.GetJson());
                         return;
                     }
