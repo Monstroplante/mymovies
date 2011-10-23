@@ -107,13 +107,13 @@ namespace MyMovies.Core
                     if (path.EndsWith("/"))
                         path += "index.htm";
 
-                    if (RepyFile(QueryPathToFile(path), request, response))
+                    if (ReplyFile(response, QueryPathToFile(path)))
                         return;
 
                     var o = HttpUtility.ParseQueryString(parts.GetOrDefault(1) ?? "");
                     if(path == "/*movies")
                     {
-                        ReplyJson(request, response, o, DM.Instance.GetJson());
+                        ReplyJson(response, o, DM.Instance.GetJson());
                         return;
                     }
 
@@ -121,7 +121,7 @@ namespace MyMovies.Core
                     {
                         if(DM.Instance.PlayFile(o["f"]))
                         {
-                            ReplyJson(request, response, o, "{success:true}");
+                            ReplyJson(response, o, "{success:true}");
                             return;
                         }
                     }
@@ -136,7 +136,7 @@ namespace MyMovies.Core
                         }
 
                         var results = new IMDBClient().Find(q);
-                        ReplyJson(request, response, o, new Serializer(typeof(SearchImdb)).Serialize(new SearchImdb(q, results)));
+                        ReplyJson(response, o, new Serializer(typeof(SearchImdb)).Serialize(new SearchImdb(q, results)));
                         return;
                     }
 
@@ -154,7 +154,7 @@ namespace MyMovies.Core
                                 DM.Instance.AddMovie(Scanner.FetchMovie(file, id));
                         }
                     
-                        ReplyJson(request, response, o, DM.Instance.GetJson());
+                        ReplyJson(response, o, DM.Instance.GetJson());
                         return;
                     }
 
@@ -196,8 +196,8 @@ namespace MyMovies.Core
                                 }
                             }
                         }
-                        RepyFile(scaledPath, request, response);
-                        return;
+                        if (ReplyFile(response, scaledPath))
+                            return;
                     }
 
                     ReplyText(response, "The resource you requested ('" + path + "') could not be found.", false, "404 Not Found");
@@ -213,7 +213,7 @@ namespace MyMovies.Core
             /// Try to return a file to client. Return false if file is not found
             /// </summary>
             /// <returns></returns>
-            private bool RepyFile(String filePath, HttpRequestHead request, IHttpResponseDelegate response)
+            private static bool ReplyFile(IHttpResponseDelegate response, String filePath)
             {
                 if (!File.Exists(filePath))
                     return false;
@@ -224,36 +224,36 @@ namespace MyMovies.Core
                 Reply(response, contentType, File.ReadAllBytes(filePath), contentType.StartsWith("image/"), null);
                 return true;
             }
-        }
 
-        private static void ReplyJson(HttpRequestHead request, IHttpResponseDelegate response, NameValueCollection o, String json)
-        {
-            var cb = o["jsonp"];
-            var data = cb.IsNullOrEmpty()
-                ? json
-                : String.Format("{0}({1})", cb, json);
-            Reply(response, "application/x-javascript; charset=utf-8", Encoding.UTF8.GetBytes(data), false, null);
-        }
-
-        private static void Reply(IHttpResponseDelegate response, String contentType, byte[] data, bool allowCache, String status)
-        {
-            var body = new BufferedBody(data);
-            var headers = new Dictionary<string, string>{
-                { "Content-Type", contentType },
-                { "Content-Length", body.Length.ToString() },
-            };
-            if (allowCache)
-                headers["Cache-Control"] = "max-age=31556926";
-            response.OnResponse(new HttpResponseHead
+            private static void ReplyJson(IHttpResponseDelegate response, NameValueCollection o, String json)
             {
-                Status = status ?? "200 OK",
-                Headers = headers
-            }, body);
-        }
+                var cb = o["jsonp"];
+                var data = cb.IsNullOrEmpty()
+                    ? json
+                    : String.Format("{0}({1})", cb, json);
+                Reply(response, "application/x-javascript; charset=utf-8", Encoding.UTF8.GetBytes(data), false, null);
+            }
 
-        private static void ReplyText(IHttpResponseDelegate response, String data, bool allowCache, String status)
-        {
-            Reply(response, "text/plain; charset=utf-8", Encoding.UTF8.GetBytes(data), allowCache, status);
+            private static void Reply(IHttpResponseDelegate response, String contentType, byte[] data, bool allowCache, String status)
+            {
+                var body = new BufferedBody(data);
+                var headers = new Dictionary<string, string>{
+                    { "Content-Type", contentType },
+                    { "Content-Length", body.Length.ToString() },
+                };
+                if (allowCache)
+                    headers["Cache-Control"] = "max-age=31556926";
+                response.OnResponse(new HttpResponseHead
+                {
+                    Status = status ?? "200 OK",
+                    Headers = headers
+                }, body);
+            }
+
+            private static void ReplyText(IHttpResponseDelegate response, String data, bool allowCache, String status)
+            {
+                Reply(response, "text/plain; charset=utf-8", Encoding.UTF8.GetBytes(data), allowCache, status);
+            }
         }
 
         class BufferedBody : IDataProducer
