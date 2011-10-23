@@ -5,7 +5,7 @@ a:hover{text-shadow: 0 0 5px #fff;}
 #templates{display:none;}
 
 #movieswrapper{padding:10px;}
-#movies{text-align:left; margin: 0 auto; width:950px;}
+#movies{text-align:left; margin: 0 auto; max-width:950px;}
 
 #modal{width:800px; background:#282d34; boder:1px solid #1f242b; border-top:none; display:none;
 	border-bottom-left-radius:5px; border-bottom-right-radius:5px;box-shadow: 0 0 30px -5px #000000;
