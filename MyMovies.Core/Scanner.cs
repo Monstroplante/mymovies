@@ -157,18 +157,16 @@ namespace Helper
             if (m.image != null && !m.image.url.IsNullOrEmpty())
             {
                 cover = Util.CleanFileName(m.image.url);
-                var coverDir = Path.Combine(WebServer.RootDir, "covers");
-                var coverPath = Path.Combine(coverDir, cover);
+                var coverPath = Path.Combine(DM.CoverDir, cover);
                 if (!File.Exists(coverPath))
                 {
-                    if (!Directory.Exists(coverDir))
-                        Directory.CreateDirectory(coverDir);
+                    if (!Directory.Exists(DM.CoverDir))
+                        Directory.CreateDirectory(DM.CoverDir);
                     new WebClient().DownloadFile(m.image.url, coverPath);
                 }
             }
 
-            var movie = new Movie(file, m, cover);
-            return movie;
+            return new Movie(file, m, cover);
         }
     }
 }
