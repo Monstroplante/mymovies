@@ -2,18 +2,33 @@
 img{image-rendering: optimizeSpeed;}
 a{text-decoration:none; cursor:pointer; color:#FFF;}
 a:hover{text-shadow: 0 0 5px #fff;}
+ul{list-style:none; margin:0; padding:0;}
+
 #templates{display:none;}
 
 #movieswrapper{padding:10px;}
 #movies{text-align:left; margin: 0 auto; max-width:950px;}
 
 #modal{width:800px; background:#282d34; boder:1px solid #1f242b; border-top:none; display:none;
-	border-bottom-left-radius:5px; border-bottom-right-radius:5px;box-shadow: 0 0 30px -5px #000000;
+	border-bottom-left-radius:5px; border-bottom-right-radius:5px;box-shadow: 0 0 30px -5px #1f242b;
 	position:fixed; top:0; left:50%; margin-left:-400px;}
 
 #header{position:fixed; top:0; right:0; padding:5px; background:#383f4a;}
 
 #load{position:fixed; right:20px; bottom:20px;}
+
+.tageditor{width:200px; background:#282d34; border:1px solid #122;border-radius:3px; box-shadow: 0 0 30px -5px #1f242b; position:absolute;}
+.tageditor li{padding:10px; cursor:pointer; border-top:1px solid #373b42; border-bottom:1px solid #122;}
+.tageditor li:hover{
+	border-top:1px solid #7cafda;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0, rgb(91,156,209)), color-stop(1, rgb(64,108,184)));
+	background: -moz-linear-gradient(center top, rgb(91,156,209) 0%, rgb(64,108,184) 100%);}
+.tageditor li:first-child{border-top:none; border-top-left-radius:3px; border-top-right-radius:3px;}
+.tageditor li:last-child{border-bottom:0; border-bottom-left-radius:3px; border-bottom-right-radius:3px;}
+.tageditor .add,
+.tageditor .remove{padding-left:25px; background:url(img/plus.png) no-repeat 0 50%; display:block;}
+.tageditor .remove{background-image:url(img/minus.png);}
+.tageditor input{background:transparent; border:none; font-size:16px;color:#FFF; padding:0;width:150px; margin:0;}
 	
 .matcher .content{padding:10px 20px;}
 .matcher .results{overflow:auto; max-height:250px;}
@@ -36,7 +51,7 @@ a:hover{text-shadow: 0 0 5px #fff;}
 .movieclassic .actions a{padding:0 15px; line-height:25px; vertical-align:middle;
 	display:block; float:left; border-left:1px solid #545b66; border-right:1px solid #373b42;}
 .movieclassic .actions a:first-child{padding-left:0; border-left:none;}
-.movieclassic .actions a:last-child{padding-right:0; border-left:right;}
+.movieclassic .actions a:last-child{padding-right:0; border-right:0;}
 .movieclassic .actions{margin-top:20px; overflow:hidden;}
 
 .movieclassic .actions a.star{background:url(img/star.png) no-repeat 0 50%; padding-left:20px; background-size:15px 15px;}

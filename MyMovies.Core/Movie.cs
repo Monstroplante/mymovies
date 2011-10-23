@@ -24,7 +24,7 @@ namespace MyMovies.Core
         public int? Duration { get; set; }
         public String Plot { get; set; }
         public String GuessedTitle { get; set; }
-        public List<String> Tags { get; set; }
+        public HashSet<String> Tags { get; set; }
 
         public int Hash
         {
@@ -90,7 +90,7 @@ namespace MyMovies.Core
             Directors = new List<String>();
             Writers = new List<String>();
             Genres = new List<String>();
-            Tags = new List<String>();
+            Tags = new HashSet<String>();
         }
     }
 }
