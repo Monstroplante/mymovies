@@ -19,6 +19,7 @@
 		<div id="movieswrapper">
 			<div id="movies"></div>
 		</div>
+		<img id="load" src="load.gif"/>
 		
 		<div id="templates">
 			<div class="movieclassic movieroot">
@@ -246,7 +247,12 @@
 				
 				refresh();
                 
-            });
+				$('#load').ajaxStart(function() {
+					$(this).show();
+				}).ajaxStop(function() {
+					$(this).hide();
+				});
+            })
         </script>
     </body>
 </html>
