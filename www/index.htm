@@ -230,7 +230,7 @@
 							case 'rating': return (a.ImdbRating - b.ImdbRating) * direction;
 							case 'duration': return (a.Duration - b.Duration) * direction;
 							case 'year': return (a.Year - b.Year) * direction;
-							default: return (Date.parse(a.DateAdded) - Date.parse(a.DateAdded)) * direction;
+							default: return (a.TimeAdded - b.TimeAdded) * direction;
 						}
 					});
 					

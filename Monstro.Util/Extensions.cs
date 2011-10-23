@@ -44,9 +44,27 @@ namespace System
 
     public static class DateTimeExtension
     {
-        public static bool IsBetween(this DateTime d, DateTime start, DateTime end)
+        public static bool IsBetween(this DateTime d, DateTimeOffset start, DateTimeOffset end)
         {
             return d >= start && d <= end;
+        }
+
+        public static int ToUnixTimestamp(this DateTime d)
+        {
+            return new DateTimeOffset(d).ToUnixTimestamp();
+        }
+    }
+
+    public static class DateTimeOffsetExtention
+    {
+        public static DateTime? GetLocalDateTimeOrNull(this DateTimeOffset? o)
+        {
+            return o == null ? (DateTime?)null : o.Value.LocalDateTime;
+        }
+
+        public static int ToUnixTimestamp(this DateTimeOffset o)
+        {
+            return (int)(o - Ext.TimestampToDate(0)).TotalSeconds;
         }
     }
 
@@ -560,6 +578,12 @@ namespace System.Collections.Generic
         public static IEnumerable<int> Range(int from, int to)
         {
             return Range(from, to, from < to ? 1 : -1);
+        }
+
+        public static DateTimeOffset TimestampToDate(double timestamp)
+        {
+            return new DateTimeOffset(1970, 1, 1, 0, 0, 0, 0, TimeSpan.Zero)
+                .AddSeconds(timestamp);
         }
     }
 }
