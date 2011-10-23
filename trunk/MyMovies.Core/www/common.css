@@ -12,6 +12,8 @@ a:hover{text-shadow: 0 0 5px #fff;}
 	position:fixed; top:0; left:50%; margin-left:-400px;}
 
 #header{position:fixed; top:0; right:0; padding:5px; background:#383f4a;}
+
+#load{position:fixed; right:20px; bottom:20px;}
 	
 .matcher .content{padding:10px 20px;}
 .matcher .results{overflow:auto; max-height:250px;}
