@@ -26,9 +26,9 @@
 				<img class="cover" />
 				<div class="content">
 					<h2></h2>
+                    <p class="genres"></p>
 					<p class="directors"></p>
                     <p class="principals"></p>
-					<p class="genres"></p>
 					<p class="plot"></p>
 					<p class="actions">
 						<a class="star" target="_blank"></a> <span class="sep"></span>
@@ -172,9 +172,9 @@
 					var e = movieclassicTemplate.clone().data('m', m);
 					$('.cover', e).attr('src', base + '/*scale/300x/' + (m.Cover ? 'covers/' + m.Cover : 'img/nocover.jpg'));
 					$('h2', e).text(m.Title + (m.Year ? ' - ' + m.Year : ''));
+					$('.genres', e).text(Math.round(m.Duration/60) + ' min - ' + m.Genres.join(' - '));
 					$('.directors', e).text('By: ' + m.Directors.join(' - ')).toggle(!!m.Directors.length);
 					$('.principals', e).text('With: ' + m.Principals.join(' - ')).toggle(!!m.Principals.length);
-					$('.genres', e).text(m.Genres.join(' - '));
 					$('.plot', e).text(m.Plot);
 					$('.allocine', e).attr('href', 'http://www.google.fr/search?' + $.param({hl:'fr', btnI:'J\'ai de la chance', q:
 						'site:allocine.fr/film ' + m.Title}));
