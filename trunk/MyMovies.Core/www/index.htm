@@ -21,7 +21,7 @@
 		</div>
 		
 		<div id="templates">
-			<div class="movieclassic">
+			<div class="movieclassic movieroot">
 				<img class="cover" />
 				<div class="content">
 					<h2></h2>
@@ -165,38 +165,50 @@
 					return $('.' + c, templates).clone();
 				}
 				
+				var movieclassicTemplate = getTemplate('movieclassic');
+				function makeMovieClassic(m){
+					console.debug('makeMovieClassic');
+					var e = movieclassicTemplate.clone().data('m', m);
+					$('.cover', e).attr('src', base + '/*scale/300x/' + (m.Cover ? 'covers/' + m.Cover : 'img/nocover.jpg'));
+					$('h2', e).text(m.Title + (m.Year ? ' - ' + m.Year : ''));
+					$('.directors', e).text('By: ' + m.Directors.join(' - ')).toggle(!!m.Directors.length);
+					$('.principals', e).text('With: ' + m.Principals.join(' - ')).toggle(!!m.Principals.length);
+					$('.genres', e).text(m.Genres.join(' - '));
+					$('.plot', e).text(m.Plot);
+					$('.allocine', e).attr('href', 'http://www.google.fr/search?' + $.param({hl:'fr', btnI:'J\'ai de la chance', q:
+						'site:allocine.fr/film ' + m.Title}));
+					$('.star', e).text((m.ImdbRating || 'No rating')+ ' on IMDB').attr('href', 'http://imdb.com/title/' + m.ImdbId);
+					$('.showfiles', e).text(m.Files.length + ' file' + (m.Files.length > 1 ? 's':''));
+					return e;
+				}
+				
 				function updateMovies(ms){
-					movies.empty();
-					var template = getTemplate('movieclassic');
-					var t1 = $.now();
-                    for(var i in ms) {
-                        var m = ms[i];
-                        var e = template.clone().data('m', m);
-                        $('.cover', e).attr('src', base + '/*scale/300x/' + (m.Cover ? 'covers/' + m.Cover : 'img/nocover.jpg'));
-                        $('h2', e).text(m.Title + (m.Year ? ' - ' + m.Year : ''));
-                        $('.directors', e).text('By: ' + m.Directors.join(' - ')).toggle(!!m.Directors.length);
-                        $('.principals', e).text('With: ' + m.Principals.join(' - ')).toggle(!!m.Principals.length);
-						$('.genres', e).text(m.Genres.join(' - '));
-						$('.plot', e).text(m.Plot);
-                        $('.allocine', e).attr('href', 'http://www.google.fr/search?' + $.param({hl:'fr', btnI:'J\'ai de la chance', q:
-                            'site:allocine.fr/film ' + m.Title}));
-						$('.star', e).text((m.ImdbRating || 'No rating')+ ' on IMDB').attr('href', 'http://imdb.com/title/' + m.ImdbId);
-						$('.showfiles', e).text(m.Files.length + ' file' + (m.Files.length > 1 ? 's':''))
-						
-                        movies.append(e);
-                    }
-					console.log('rendered ' + ms.length + ' elements in ' + ($.now() - t1) + 'ms');
+					var actuals = {};
+					movies.detach();
+					
+					movies.children().each(function(){
+						var e = $(this);
+						var m = e.data('m');
+						actuals[m.Hash] = e;
+					}).detach();
+
+					for(var i in ms){
+						var m = ms[i];
+						var e = actuals[m.Hash] || makeMovieClassic(m);
+						movies.append(e);
+					}
+					$('#movieswrapper').append(movies);
 				}
 				
 				function setData(data){
-					var d1 = new Date().getTime();
+					var d1 = $.now();
 					updateMovies(data.Movies);
 					btUnmatched
 						.text(data.Unmatched.length + ' unmatched')
 						.toggle(data.Unmatched.length ? true : false).unbind().click(function(){
 							match(data.Unmatched);
 						});
-					$('.refreshtime').text(new Date().getTime() - d1);
+					$('.refreshtime').text($.now() - d1);
 				}
 				
 				//live events
@@ -215,8 +227,9 @@
 				});
 
 				$('.delmatch', movies).live('click', function () {
-				    var m = $(this).m();
-				    srv.setMatch(null, m.ImdbId);
+					var e = $(this);
+				    srv.setMatch(null, e.m().ImdbId);
+					e.closest('.movieroot').slideUp(200);
 				});
 
 				$('.play', movies).live('click', function () {

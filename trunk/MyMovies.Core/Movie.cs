@@ -26,9 +26,12 @@ namespace MyMovies.Core
         public String GuessedTitle { get; set; }
         public List<String> Tags { get; set; }
 
-        public int HashCode
+        public int Hash
         {
             get { return GetHashCode(); }
+
+            //JsonExSerializer ignore properties with no setter
+            set { }
         }
 
         public override int GetHashCode()
