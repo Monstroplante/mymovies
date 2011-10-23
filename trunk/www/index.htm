@@ -22,6 +22,8 @@
 				<option value="duration">Duration</option>
 				<option value="year">Year</option>
 			</select>
+			<input type="checkbox" id="descending" CHECKED/>
+			<label for="descending">descending</label>
 		</div>
 		<div id="movieswrapper">
 			<div id="movies"></div>
@@ -86,6 +88,7 @@
 				var _baseUrl = window.location.href.indexOf('file://') === 0
 					? 'http://localhost:8080' : '';
 				var _jSort = $('#sort');
+				var _jDescending = $('#descending');
 					
 				var _srv = {
 					call:function(action, params, cb){
@@ -219,14 +222,15 @@
 					var d1 = $.now();
 					
 					var sort = _jSort.val();
+					var direction = _jDescending.is(':checked') ? -1 : 1;
 					
 					var movies = _data.Movies.sort(function(a, b){
 						switch(sort){
-							case 'title': return a.Title.localeCompare(b.Title);
-							case 'rating': return a.ImdbRating - b.ImdbRating;
-							case 'duration': return a.Duration - b.Duration;
-							case 'year': return a.Year - b.Year;
-							default: return Date.parse(a.DateAdded) - Date.parse(a.DateAdded);
+							case 'title': return (a.Title.localeCompare(b.Title)) * direction;
+							case 'rating': return (a.ImdbRating - b.ImdbRating) * direction;
+							case 'duration': return (a.Duration - b.Duration) * direction;
+							case 'year': return (a.Year - b.Year) * direction;
+							default: return (Date.parse(a.DateAdded) - Date.parse(a.DateAdded)) * direction;
 						}
 					});
 					
@@ -280,7 +284,8 @@
 					$(this).hide();
 				});
 				
-				_jSort.change(refresh)
+				_jSort.change(refresh);
+				_jDescending.change(refresh);
             })
         </script>
     </body>
