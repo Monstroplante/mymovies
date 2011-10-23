@@ -20,7 +20,7 @@ namespace MyMovies.Core
         public String ImdbId { get; set; }
         public double? ImdbRating { get; set; }
         public String Cover { get; set; }
-        public DateTime DateAdded { get; set; }
+        public int TimeAdded { get; set; }
         public int? Duration { get; set; }
         public String Plot { get; set; }
         public String GuessedTitle { get; set; }
@@ -43,7 +43,7 @@ namespace MyMovies.Core
                 result = (result * 397) ^ (ImdbId != null ? ImdbId.GetHashCode() : 0);
                 result = (result * 397) ^ (ImdbRating.HasValue ? ImdbRating.Value.GetHashCode() : 0);
                 result = (result * 397) ^ (Cover != null ? Cover.GetHashCode() : 0);
-                result = (result * 397) ^ DateAdded.GetHashCode();
+                result = (result * 397) ^ TimeAdded;
                 result = (result * 397) ^ (Duration.HasValue ? Duration.Value : 0);
                 result = (result * 397) ^ (Plot != null ? Plot.GetHashCode() : 0);
                 result = (result * 397) ^ (GuessedTitle != null ? GuessedTitle.GetHashCode() : 0);
@@ -57,7 +57,7 @@ namespace MyMovies.Core
 
         public Movie(String file, JsonMainDetails.Data infos, String coverFileName) : this()
         {
-            DateAdded = DateTime.Now;
+            TimeAdded = DateTime.Now.ToUnixTimestamp();
 
             Title = infos.title;
             try
