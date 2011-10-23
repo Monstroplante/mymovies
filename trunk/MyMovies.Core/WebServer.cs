@@ -24,8 +24,8 @@ namespace MyMovies.Core
     public static class WebServer
     {
         static Thread thread;
-        public static String RootDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "www");
-        public static String ScaledDir = Path.Combine(RootDir, "img", "scaled");
+        public static String WebDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "www");
+        public static String ScaledDir = Path.Combine(DM.CoverDir, "scaled");
         static Log log = new Log("www");
         private static int Port;
 
@@ -90,115 +90,123 @@ namespace MyMovies.Core
                 queryPath = (queryPath ?? "").Replace('/', Path.DirectorySeparatorChar);
                 if(queryPath.StartsWith(Path.DirectorySeparatorChar.ToString()))
                     queryPath = queryPath.Substring(1);
-                return Path.Combine(RootDir, queryPath);
+                return Path.Combine(WebDir, queryPath);
             }
 
             public void OnRequest(HttpRequestHead request, IDataProducer requestBody,
                 IHttpResponseDelegate response)
             {
-                log.Info(new[] { request.Method, request.Uri}.Join("\t"));
-
-                String url = request.Uri;
-                var parts = url.Split(new[]{'?'}, 2);
-                String path = HttpUtility.UrlDecode(parts[0]);
-
-                if (path.EndsWith("/"))
-                    path += "index.htm";
-
-                if (RepyFile(QueryPathToFile(path), request, response))
-                    return;
-
-                var o = HttpUtility.ParseQueryString(parts.GetOrDefault(1) ?? "");
-                if(path == "/*movies")
+                try
                 {
-                    DoJsonpResponse(request, response, o, DM.Instance.GetJson());
-                    return;
-                }
+                    log.Info(new[] { request.Method, request.Uri}.Join("\t"));
 
-                if (path == "/*play")
-                {
-                    if(DM.Instance.PlayFile(o["f"]))
+                    String url = request.Uri;
+                    var parts = url.Split(new[]{'?'}, 2);
+                    String path = HttpUtility.UrlDecode(parts[0]);
+
+                    if (path.EndsWith("/"))
+                        path += "index.htm";
+
+                    if (RepyFile(QueryPathToFile(path), request, response))
+                        return;
+
+                    var o = HttpUtility.ParseQueryString(parts.GetOrDefault(1) ?? "");
+                    if(path == "/*movies")
                     {
-                        DoJsonpResponse(request, response, o, "{success:true}");
+                        ReplyJson(request, response, o, DM.Instance.GetJson());
                         return;
                     }
-                }
 
-                if (path == "/*searchImdb")
-                {
-                    var q = o["q"];
-                    if (q.IsNullOrEmpty())
+                    if (path == "/*play")
                     {
-                        var g = Scanner.ParseMovieName(o["f"]);
-                        q = g.GuessedTitle + " " + g.GuessedYear;
-                    }
-
-                    var results = new IMDBClient().Find(q);
-                    DoJsonpResponse(request, response, o, new Serializer(typeof(SearchImdb)).Serialize(new SearchImdb(q, results)));
-                    return;
-                }
-
-                if (path == "/*setMatch")
-                {
-                    var id = o["id"];
-                    var file = o["f"];
-                    if(!id.IsNullOrEmpty() || !file.IsNullOrEmpty())
-                    {
-                        if (id.IsNullOrEmpty())
-                            DM.Instance.AddUnmatched(file);
-                        else if(file.IsNullOrEmpty())
-                            DM.Instance.UnmatchMovie(id);
-                        else
-                            DM.Instance.AddMovie(Scanner.FetchMovie(file, id));
-                    }
-                    
-                    DoJsonpResponse(request, response, o, DM.Instance.GetJson());
-                    return;
-                }
-
-                //TODO: resize image in a thread
-                if (path.StartsWith("/*scale/"))
-                {
-                    var p = path.Split('/', 4);
-                    if(p.Length != 4)
-                        throw new Exception("invalid scale request");
-
-                    var format = RegScaleFormat.Match(p[2]);
-                    if (!format.Success)
-                        throw new Exception("Invalid format");
-
-                    String img = QueryPathToFile(p[3]);
-                    if(!File.Exists(img))
-                        throw new Exception("Image not found");
-
-                    String dir = Path.Combine(ScaledDir, format.Groups[0].Value);
-                    Directory.CreateDirectory(dir);
-                    String scaledPath = Path.Combine(dir, Util.CleanFileName(p[3]));
-
-                    if(!File.Exists(scaledPath))
-                    {
-                        using(var b = new Bitmap(img))
+                        if(DM.Instance.PlayFile(o["f"]))
                         {
-                            String w = format.Groups[1].Value;
-                            String h = format.Groups[2].Value;
-                            String flags = format.Groups[3].Value;
-                            using(var  scaled = ImgUtil.Scale(b,
-                                w.IsNullOrEmpty() ? (int?)null : int.Parse(w),
-                                h.IsNullOrEmpty() ? (int?)null : int.Parse(h),
-                                flags.Contains('c'),
-                                flags.Contains('s')))
-                            {
-                                ImgUtil.Compress(scaled, scaledPath, ImageFormat.Jpeg, 90);
-                            }
+                            ReplyJson(request, response, o, "{success:true}");
+                            return;
                         }
                     }
-                    RepyFile(scaledPath, request, response);
-                    return;
-                }
 
-                //404
-                DoResponse(request, response, "text/plain",
-                    "The resource you requested ('" + path + "') could not be found.");
+                    if (path == "/*searchImdb")
+                    {
+                        var q = o["q"];
+                        if (q.IsNullOrEmpty())
+                        {
+                            var g = Scanner.ParseMovieName(o["f"]);
+                            q = g.GuessedTitle + " " + g.GuessedYear;
+                        }
+
+                        var results = new IMDBClient().Find(q);
+                        ReplyJson(request, response, o, new Serializer(typeof(SearchImdb)).Serialize(new SearchImdb(q, results)));
+                        return;
+                    }
+
+                    if (path == "/*setMatch")
+                    {
+                        var id = o["id"];
+                        var file = o["f"];
+                        if(!id.IsNullOrEmpty() || !file.IsNullOrEmpty())
+                        {
+                            if (id.IsNullOrEmpty())
+                                DM.Instance.AddUnmatched(file);
+                            else if(file.IsNullOrEmpty())
+                                DM.Instance.UnmatchMovie(id);
+                            else
+                                DM.Instance.AddMovie(Scanner.FetchMovie(file, id));
+                        }
+                    
+                        ReplyJson(request, response, o, DM.Instance.GetJson());
+                        return;
+                    }
+
+                    //TODO: resize image in a thread
+                    if (path.StartsWith("/*cover/"))
+                    {
+                        var p = path.Split('/', 4);
+                        if(p.Length != 4)
+                            throw new Exception("invalid scale request");
+
+                        var format = RegScaleFormat.Match(p[2]);
+                        if (!format.Success)
+                            throw new Exception("Invalid format");
+
+                        String img = Path.Combine(DM.CoverDir, p[3]);
+                        if (!File.Exists(img))
+                            img = QueryPathToFile("img/nocover.jpg");
+                        if(!File.Exists(img))
+                            throw new Exception("Image not found " + img);
+
+                        String dir = Path.Combine(ScaledDir, format.Groups[0].Value);
+                        Directory.CreateDirectory(dir);
+                        String scaledPath = Path.Combine(dir, Path.GetFileName(img));
+
+                        if(!File.Exists(scaledPath))
+                        {
+                            using(var b = new Bitmap(img))
+                            {
+                                String w = format.Groups[1].Value;
+                                String h = format.Groups[2].Value;
+                                String flags = format.Groups[3].Value;
+                                using(var  scaled = ImgUtil.Scale(b,
+                                    w.IsNullOrEmpty() ? (int?)null : int.Parse(w),
+                                    h.IsNullOrEmpty() ? (int?)null : int.Parse(h),
+                                    flags.Contains('c'),
+                                    flags.Contains('s')))
+                                {
+                                    ImgUtil.Compress(scaled, scaledPath, ImageFormat.Jpeg, 90);
+                                }
+                            }
+                        }
+                        RepyFile(scaledPath, request, response);
+                        return;
+                    }
+
+                    ReplyText(response, "The resource you requested ('" + path + "') could not be found.", false, "404 Not Found");
+                }
+                catch (Exception e)
+                {
+                    log.Error(e.Message);
+                    ReplyText(response, e.Message + "\n\n" + e.StackTrace, false, "500 Internal Server Error");
+                }
             }
 
             /// <summary>
@@ -210,23 +218,24 @@ namespace MyMovies.Core
                 if (!File.Exists(filePath))
                     return false;
 
-                var ext = (Path.GetExtension(filePath) ?? ".").Substring(1).ToLower();
+                var ext = (Path.GetExtension(filePath).TrimOrNull() ?? ".").Substring(1).ToLower();
                 String contentType = ContentTypes.GetOrDefault(ext, "text/plain");
 
-                DoResponse(request, response, contentType, File.ReadAllBytes(filePath), contentType.StartsWith("image/"));
+                Reply(response, contentType, File.ReadAllBytes(filePath), contentType.StartsWith("image/"), null);
                 return true;
             }
         }
 
-        private static void DoJsonpResponse(HttpRequestHead request, IHttpResponseDelegate response, NameValueCollection o, String json)
+        private static void ReplyJson(HttpRequestHead request, IHttpResponseDelegate response, NameValueCollection o, String json)
         {
             var cb = o["jsonp"];
-            DoResponse(request, response, "application/x-javascript; charset=utf-8", cb.IsNullOrEmpty()
+            var data = cb.IsNullOrEmpty()
                 ? json
-                : String.Format("{0}({1})", cb, json));
+                : String.Format("{0}({1})", cb, json);
+            Reply(response, "application/x-javascript; charset=utf-8", Encoding.UTF8.GetBytes(data), false, null);
         }
 
-        private static void DoResponse(HttpRequestHead request, IHttpResponseDelegate response, String contentType, byte[] data, bool allowCache)
+        private static void Reply(IHttpResponseDelegate response, String contentType, byte[] data, bool allowCache, String status)
         {
             var body = new BufferedBody(data);
             var headers = new Dictionary<string, string>{
@@ -237,14 +246,14 @@ namespace MyMovies.Core
                 headers["Cache-Control"] = "max-age=31556926";
             response.OnResponse(new HttpResponseHead
             {
-                Status = "200 OK",
+                Status = status ?? "200 OK",
                 Headers = headers
             }, body);
         }
 
-        private static void DoResponse(HttpRequestHead request, IHttpResponseDelegate response, String contentType, String data)
+        private static void ReplyText(IHttpResponseDelegate response, String data, bool allowCache, String status)
         {
-            DoResponse(request, response, contentType, Encoding.UTF8.GetBytes(data), false);
+            Reply(response, "text/plain; charset=utf-8", Encoding.UTF8.GetBytes(data), allowCache, status);
         }
 
         class BufferedBody : IDataProducer

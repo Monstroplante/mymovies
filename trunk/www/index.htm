@@ -7,7 +7,6 @@
         <title>My movies</title>
         <script type="text/javascript" src="jquery-1.6.1.min.js"></script>
         <link rel="stylesheet" type="text/css" href="common.css"/>
-        <link rel="stylesheet" type="text/css" href="themes/dark/style.css"/>
     </head>
     <body>
 		<div id="modal"></div>
@@ -170,7 +169,7 @@
 				function makeMovieClassic(m){
 					console.debug('makeMovieClassic');
 					var e = movieclassicTemplate.clone().data('m', m);
-					$('.cover', e).attr('src', base + '/*scale/300x/' + (m.Cover ? 'covers/' + m.Cover : 'img/nocover.jpg'));
+					$('.cover', e).attr('src', base + '/*cover/300x/' + (m.Cover || ''));
 					$('h2', e).text(m.Title + (m.Year ? ' - ' + m.Year : ''));
 					$('.genres', e).text(Math.round(m.Duration/60) + ' min - ' + m.Genres.join(' - '));
 					$('.directors', e).text('By: ' + m.Directors.join(' - ')).toggle(!!m.Directors.length);

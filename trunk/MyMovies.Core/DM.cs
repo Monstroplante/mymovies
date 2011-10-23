@@ -15,6 +15,7 @@ namespace MyMovies.Core
         private static DM instance;
         private readonly DataBase _data;
         private readonly String _dataFile = GetLocalFilePath("data.json");
+        public static String CoverDir = DM.GetLocalFilePath("covers");
 
         public static String GetLocalFilePath(params String[] path)
         {
