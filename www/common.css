@@ -31,9 +31,9 @@ a:hover{text-shadow: 0 0 5px #fff;}
 .movieclassic .cover{width:200px;}
 .movieclassic .cover{box-shadow: 0 0 30px -5px #000000; float:left;}
 .movieclassic .content{margin-left:220px;}
-.movieclassic .files a{margin-bottom:5px;}
+.movieclassic .files a{margin-bottom:5px; word-wrap: break-word;}
 .movieclassic p{margin:10px 0 0 0;}
-.movieclassic .actions a{padding:0 15px; line-height:22px; vertical-align:middle;
+.movieclassic .actions a{padding:0 15px; line-height:25px; vertical-align:middle;
 	display:block; float:left; border-left:1px solid #545b66; border-right:1px solid #373b42;}
 .movieclassic .actions a:first-child{padding-left:0; border-left:none;}
 .movieclassic .actions a:last-child{padding-right:0; border-left:right;}
