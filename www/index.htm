@@ -14,6 +14,14 @@
 			<a id="btunmatched" class="hidden">Unmathched</a>
 			-
 			<a class="btrefresh">Refresh <span class="refreshtime">0</span>ms</a>
+			-
+			<select id="sort">
+				<option value="date" selected="selected">Date added</option>
+				<option value="title">Title</option>
+				<option value="rating">IMDB rating</option>
+				<option value="duration">Duration</option>
+				<option value="year">Year</option>
+			</select>
 		</div>
 		<div id="movieswrapper">
 			<div id="movies"></div>
@@ -77,6 +85,7 @@
 				//Usefull to test/edit layout
 				var _baseUrl = window.location.href.indexOf('file://') === 0
 					? 'http://localhost:8080' : '';
+				var _jSort = $('#sort');
 					
 				var _srv = {
 					call:function(action, params, cb){
@@ -208,7 +217,20 @@
 				
 				function refresh(){
 					var d1 = $.now();
-					updateMovies(_data.Movies);
+					
+					var sort = _jSort.val();
+					
+					var movies = _data.Movies.sort(function(a, b){
+						switch(sort){
+							case 'title': return a.Title.localeCompare(b.Title);
+							case 'rating': return a.ImdbRating - b.ImdbRating;
+							case 'duration': return a.Duration - b.Duration;
+							case 'year': return a.Year - b.Year;
+							default: return Date.parse(a.DateAdded) - Date.parse(a.DateAdded);
+						}
+					});
+					
+					updateMovies(movies);
 					_btUnmatched
 						.text(_data.Unmatched.length + ' unmatched')
 						.toggle(_data.Unmatched.length ? true : false).unbind().click(function(){
@@ -257,6 +279,8 @@
 				}).ajaxStop(function() {
 					$(this).hide();
 				});
+				
+				_jSort.change(refresh)
             })
         </script>
     </body>
