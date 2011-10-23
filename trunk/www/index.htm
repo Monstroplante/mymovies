@@ -24,6 +24,8 @@
 			</select>
 			<input type="checkbox" id="descending" CHECKED/>
 			<label for="descending">descending</label>
+			-
+			<select id="tagfilter"></select>
 		</div>
 		<div id="movieswrapper">
 			<div id="movies"></div>
@@ -97,6 +99,7 @@
 				var _baseUrl = window.location.href.indexOf('file://') === 0
 					? 'http://localhost:8080' : '';
 				var _jSort = $('#sort');
+				var _jTagFilter = $('#tagfilter');
 				var _jDescending = $('#descending');
 				var _allTags = {};
 					
@@ -220,8 +223,11 @@
 						actuals[m.Hash] = e;
 					}).detach();
 
+					var tag = _jTagFilter.val();
 					for(var i in ms){
 						var m = ms[i];
+						if(tag && $.inArray(tag, m.Tags) < 0)
+							continue;
 						var e = actuals[m.Hash] || makeMovieClassic(m);
 						_jMovies.append(e);
 					}
@@ -230,6 +236,8 @@
 				
 				function setData(data){
 					_data = data;
+					
+					//Calculate tags
 					_allTags = {};
 					for(var i in data.Movies){
 						var m = data.Movies[i];
@@ -238,6 +246,22 @@
 							_allTags[t] = (_allTags[t] + 1) || 1;
 						}
 					};
+					
+					//Update tag filter
+					var filterVal = _jTagFilter.val();
+					_jTagFilter.empty();
+					$('<option/>')
+						.text('Filter by tag...')
+						.attr('value', '')
+						.appendTo(_jTagFilter);
+					$.each(_allTags, function(t, n){
+						$('<option/>')
+							.text(t + ' (' + n + ')')
+							.attr('value', t)
+							.appendTo(_jTagFilter);
+					});
+					_jTagFilter.val(filterVal);
+					
 					console.debug(_allTags);
 					refresh();
 				}
@@ -364,6 +388,7 @@
 				
 				_jSort.change(refresh);
 				_jDescending.change(refresh);
+				_jTagFilter.change(refresh);
             })
         </script>
     </body>
