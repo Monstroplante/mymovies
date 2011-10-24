@@ -214,6 +214,7 @@
 				}
 				
 				function fullUpdateMovies(ms){
+					console.debug('fullUpdateMovies');
 					var actuals = {};
 					_jMovies.detach();
 					
@@ -243,13 +244,19 @@
 						var e = actuals.eq(i);
 						var a = e.data('m');
 						
-						//if no more elements, append
+						//Append
 						if(!a){
+							//To mutch elements to append, full refresh will be faster
+							if(ms.length - i > 10){
+								fullUpdateMovies(ms);
+								return;
+							}
+							
 							makeMovieClassic(m).appendTo(_jMovies);
 							continue;
 						}
 						
-						//if it is the element match, nothing to do
+						//No change
 						if(a.Hash == m.Hash){
 							continue;
 						}
@@ -260,12 +267,12 @@
 							e.remove();
 							continue;
 						}
-						//insert
+						//Insert
 						if(ms.length > i+1 && a.Hash == ms[i+1].Hash){
 							makeMovieClassic(m).insertBefore(e);
 							continue;
 						}
-						//update
+						//Update
 						if(!next ||(ms.length > i && next.Hash == ms[i+1].Hash)){
 							e.replaceWith(makeMovieClassic(m));
 							continue;
