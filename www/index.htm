@@ -55,7 +55,7 @@
 						<a class="play">Play</a>
 						<a class="edittags">Tags</a>
 						<a class="showfiles"></a>
-						<a class="delmatch">Delete match</a>
+						<a class="delmatch">Del match</a>
 					</p>
 					<p class="files hidden"></p>
 				</div>
@@ -213,7 +213,7 @@
 					return e;
 				}
 				
-				function updateMovies(ms){
+				function fullUpdateMovies(ms){
 					var actuals = {};
 					_jMovies.detach();
 					
@@ -232,6 +232,48 @@
 						_jMovies.append(e);
 					}
 					$('#movieswrapper').append(_jMovies);
+				}
+				
+				function updateMovies(ms){
+					var actuals = {};
+					
+					var actuals = _jMovies.children();
+					for(var i=0; i < ms.length; i++){
+						var m = ms[i];
+						var e = actuals.eq(i);
+						var a = e.data('m');
+						
+						//if no more elements, append
+						if(!a){
+							makeMovieClassic(m).appendTo(_jMovies);
+							continue;
+						}
+						
+						//if it is the element match, nothing to do
+						if(a.Hash == m.Hash){
+							continue;
+						}
+						
+						//Delete
+						var next = actuals.eq(i+1).data('m');
+						if(next && next.Hash == m.Hash){
+							e.remove();
+							continue;
+						}
+						//insert
+						if(ms.length > i+1 && a.Hash == ms[i+1].Hash){
+							makeMovieClassic(m).insertBefore(e);
+							continue;
+						}
+						//update
+						if(!next ||(ms.length > i && next.Hash == ms[i+1].Hash)){
+							e.replaceWith(makeMovieClassic(m));
+							continue;
+						}
+						//To much changes, do a full refresh
+						fullUpdateMovies(ms);
+						return;
+					}
 				}
 				
 				function setData(data){
