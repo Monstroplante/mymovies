@@ -17,7 +17,7 @@ namespace Helper
         private const int MinFileSize = 100 * 1024 * 1024;//100Mo
 
         private const RegexOptions CompiledIgnoreCase = RegexOptions.Compiled | RegexOptions.IgnoreCase;
-        private const String Keywords = @"\b(divx\d?|xvid|dvdrip|dvd|french|vo|vf|cd\W?\d|720p|1080p|avi|BluRay|x264|H264|bdrip|brrip|aac|hd|2 Ch|fr|vost[a-z]{0,2}|rip)\b";
+        private const String Keywords = @"\b(divx\d?|mkv|xvid|dvdrip|dvd|french|vo|vf|cd\W?\d|720p|1080p|avi|BluRay|x264|H264|bdrip|brrip|aac|hd|2 Ch|fr|vost[a-z]{0,2}|rip)\b";
         static readonly Regex RegKeywords = new Regex(Keywords, CompiledIgnoreCase);
         static readonly Regex RegExtractTitleAndYear = new Regex(@"^(.+?)\b((?:1|2)[0-9o]{3})\b", CompiledIgnoreCase);
         static readonly Regex RegSerial = new Regex(String.Format(@"^(.+?)\b(?:{0})\b", new[]{
