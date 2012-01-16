@@ -119,6 +119,7 @@ namespace MyMovies.Core
                 return _data.Movies.SelectMany(m => m.Files)
                     .Concat(_data.Ignored)
                     .Concat(_data.Skipped)
+                    .Concat(_data.Unmatched)
                     .ToList();
             }
         }
