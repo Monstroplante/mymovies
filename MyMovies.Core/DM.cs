@@ -71,11 +71,14 @@ namespace MyMovies.Core
                 var m = movie.ImdbId.IsNullOrEmpty() ? null : _data.Movies.FirstOrDefault(o => o.ImdbId == movie.ImdbId);
                 if(m != null)
                 {
-                    movie.Files.AddRange(m.Files);
-                    _data.Movies.Remove(m);
+                    m.Files.AddRange(m.Files);
+                    m.Files.Sort();
                 }
-                movie.Files.Sort();
-                _data.Movies.Add(movie);
+                else
+                {
+                    _data.Movies.Add(movie);
+                    movie.Files.Sort();
+                }
             }
         }
 
