@@ -171,7 +171,7 @@ namespace Helper
             var m = imdb.GetDetails(imdbId);
 
             if (!allowUnpopular && m.num_votes < 100)
-                return null;
+                throw new NoMatchFoundException();
 
             String cover = null;
             if (m.image != null && !m.image.url.IsNullOrEmpty())
