@@ -19,7 +19,7 @@ namespace Helper
         private const RegexOptions CompiledIgnoreCase = RegexOptions.Compiled | RegexOptions.IgnoreCase;
         private const String Keywords = @"\b(divx\d?|mkv|xvid|dvdrip|dvd|french|vo|vf|cd\W?\d|720p|1080p|avi|BluRay|x264|H264|bdrip|brrip|aac|hd|2 Ch|fr|vost[a-z]{0,2}|rip)\b";
         static readonly Regex RegKeywords = new Regex(Keywords, CompiledIgnoreCase);
-        static readonly Regex RegExtractTitleAndYear = new Regex(@"^(.+?)\b((?:1|2)[0-9o]{3})\b", CompiledIgnoreCase);
+        static readonly Regex RegExtractTitleAndYear = new Regex(@"^(.+?)\b((?:19|2[0o])[0-9o]{2})\b", CompiledIgnoreCase);
         static readonly Regex RegSerial = new Regex(String.Format(@"^(.+?)\b(?:{0})\b", new[]{
             @"s(?<s>\d{1,2})e\d{1,3}",
             @"(?<s>\d{1,2})x\d{1,3}",
@@ -27,8 +27,9 @@ namespace Helper
             @"(season|saison)\W?(?<s>\d{1,2})",
             @"\s*[-.]\s*(?<s>0?\d)\d\d\b",
             @"(?<s>\d)\d\d",
+            @"(?<s>[01][0-8])\d\d",
         }.Join("|")), CompiledIgnoreCase);
-        static readonly Regex RegSerialFullPath = new Regex(@"\b((season|saison)\W?(?<s>\d{1,2})|s(?<s>\d{1,2}))\b", CompiledIgnoreCase);
+        static readonly Regex RegExtractSerialFullPath = new Regex(@"(^|/)(?<n>[^/]{3,}?)\b((season|saison)\W*(?<s>\d{1,2})|s(?<s>\d{1,2}))\b", CompiledIgnoreCase);
         static readonly Regex RegExtractBeforeKeyword = new Regex(@"^(.+?)" + Keywords, CompiledIgnoreCase);
         static readonly Regex RegCleanup = new Regex("(" + new[]{
             @"\[.+?\]",
@@ -68,46 +69,55 @@ namespace Helper
 
         public static MovieInfos ParseMovieName(String path)
         {
-            bool seeamsDuplicated = RegSeamsDuplicated.IsMatch(path);
-            RegSerialFullPath.Match(path);
-            var parts = path.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries)
-                .Reverse().ToArray();
-
+            var p = (path ?? "").Replace('\\', '/');
+            bool seeamsDuplicated = RegSeamsDuplicated.IsMatch(p);
             String f = null;
-            String file = RemoveFileExt(parts[0]);
-
-            //Try to determine if parent isbetter candidate
-            String parent = parts.GetOrDefault(1);
-            if (parent == "VIDEO_TS")
-                f = parts.GetOrDefault(2);
-
-            if(f.IsNullOrEmpty())
-            {
-                int parentMatches = GetKwMathCount(parent);
-                f = parentMatches >= 2 && parentMatches > GetKwMathCount(file)
-                    ? parent : file;
-            }
-            
-            f = (f ?? "").Replace('_', ' ');
-
             int? y = null;
 
-            var m = RegSerial.Match(f);
-            if (m.Success)
-                f = Cleanup(m.Groups[1].Value);
-
-            m = RegExtractTitleAndYear.Match(f);
-            if (m.Success)
+            Match m = RegExtractSerialFullPath.Match(p);
+            if(m.Success)
             {
-                f = m.Groups[1].Value;
-                y = int.Parse(m.Groups[2].Value.ToLower().Replace('o', '0'));
+                f = m.Groups["n"].Value;
+            }
+            else
+            {
+                var parts = p.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+                .Reverse().ToArray();
+
+
+                String file = RemoveFileExt(parts[0]);
+
+                //Try to determine if parent isbetter candidate
+                String parent = parts.GetOrDefault(1);
+                if (parent == "VIDEO_TS")
+                    f = parts.GetOrDefault(2);
+
+                if (f.IsNullOrEmpty())
+                {
+                    int parentMatches = GetKwMathCount(parent);
+                    f = parentMatches >= 2 && parentMatches > GetKwMathCount(file)
+                        ? parent : file;
+                }
+
+                f = (f ?? "").Replace('_', ' ');
+
+                m = RegSerial.Match(f);
+                if (m.Success)
+                    f = m.Groups[1].Value;
+
+                m = RegExtractTitleAndYear.Match(f);
+                if (m.Success)
+                {
+                    f = m.Groups[1].Value;
+                    y = int.Parse(m.Groups[2].Value.ToLower().Replace('o', '0'));
+                }
+
+                m = RegExtractBeforeKeyword.Match(f);
+                if (m.Success)
+                    f = m.Groups[1].Value;
             }
 
-            m = RegExtractBeforeKeyword.Match(f);
-            if (m.Success)
-                f = m.Groups[1].Value;
-
-            return new MovieInfos(Cleanup(f), y, path, seeamsDuplicated, RegBlackList.IsMatch(path));
+            return new MovieInfos(Cleanup(f), y, path, seeamsDuplicated, RegBlackList.IsMatch(p));
         }
 
         private static int GetKwMathCount(String s)
