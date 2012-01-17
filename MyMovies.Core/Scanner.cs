@@ -29,7 +29,7 @@ namespace Helper
             @"(?<s>\d)\d\d",
             @"(?<s>[01][0-8])\d\d",
         }.Join("|")), CompiledIgnoreCase);
-        static readonly Regex RegExtractSerialFullPath = new Regex(@"(^|/)(?<n>[^/]{3,}?)\b((season|saison)\W*(?<s>\d{1,2})|s(?<s>\d{1,2}))\b", CompiledIgnoreCase);
+        static readonly Regex RegExtractSerialFullPath = new Regex(@"(^|/)(?<n>[^/]{3,}?)\b(((season|saison)\W*(?<s>\d{1,2})|s(?<s>\d{1,2}))|Complete)\b", CompiledIgnoreCase);
         static readonly Regex RegExtractBeforeKeyword = new Regex(@"^(.+?)" + Keywords, CompiledIgnoreCase);
         static readonly Regex RegCleanup = new Regex("(" + new[]{
             @"\[.+?\]",
@@ -111,11 +111,11 @@ namespace Helper
                     f = m.Groups[1].Value;
                     y = int.Parse(m.Groups[2].Value.ToLower().Replace('o', '0'));
                 }
-
-                m = RegExtractBeforeKeyword.Match(f);
-                if (m.Success)
-                    f = m.Groups[1].Value;
             }
+
+            m = RegExtractBeforeKeyword.Match(f);
+            if (m.Success)
+                f = m.Groups[1].Value;
 
             return new MovieInfos(Cleanup(f), y, path, seeamsDuplicated, RegBlackList.IsMatch(p));
         }
