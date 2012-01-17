@@ -175,6 +175,8 @@ namespace Test
             new TestResult(true, new MovieInfos("Waltz With Bashir", 2008, @"\Waltz.With.Bashir.2008.720p.BluRay.x264-CiNEFiLE\Waltz.With.Bashir.2008.720p.BluRay.x264-CiNEFiLE.mkv", false, false)),
             new TestResult(true, new MovieInfos("Where The Wild Things Are", null, @"\Where.The.Wild.Things.Are.720p.Bluray.x264-HUBRIS\wtwta-hubris.mkv", false, false)),
             new TestResult(false, new MovieInfos("bbs cnscg com 处刑人", null, @"\处刑人￡圣城打佛\bbs.cnscg.com 处刑人.mkv", false, false)),
+            new TestResult(true, new MovieInfos("Southpark", null, @"c:\torrent\series\Season 13\Southpark - 1307 - Fatbeard {C_P}.avi", false, false)),
+            new TestResult(true, new MovieInfos("Malcolm", null, @"c:\torrent\series\malcolm\Malcolm Saison 1\01.10 - A Fond La Caisse - Malcolm.avi", false, false)), 
         };
 
         public TestResult[][] ScanResults = new[]{ScanResult1, ScanResult2};
