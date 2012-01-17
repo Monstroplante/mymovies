@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.IO;
+using System.Threading;
 using System.Web.Script.Serialization;
 using JsonExSerializer;
 
@@ -16,6 +17,7 @@ namespace MyMovies.Core
         private readonly DataBase _data;
         private readonly String _dataFile = GetLocalFilePath("data.json");
         public static String CoverDir = DM.GetLocalFilePath("covers");
+        private Log log = new Log("DM");
 
         public static String GetLocalFilePath(params String[] path)
         {
@@ -45,11 +47,20 @@ namespace MyMovies.Core
             }
         }
 
+        private Timer _saveTimer;
+        private void ScheduleSave()
+        {
+            if (_saveTimer != null)
+                _saveTimer.Dispose();
+            _saveTimer = new Timer(new TimerCallback(o => Save()), null, 10000, Timeout.Infinite);
+        }
+
         public void Save()
         {
             lock (_data)
             {
                 File.WriteAllText(_dataFile, GetJson(), Encoding.UTF8);
+                log.Info("Data saved");
             }
         }
 
@@ -82,6 +93,7 @@ namespace MyMovies.Core
                     movie.Files.Sort();
                 }
             }
+            ScheduleSave();
         }
 
         public void RemoveFile(String file)
@@ -102,6 +114,7 @@ namespace MyMovies.Core
                     }
                 }
             }
+            ScheduleSave();
         }
 
         public void UnmatchMovie(String imdbId)
@@ -115,6 +128,7 @@ namespace MyMovies.Core
                 foreach (var file in movie.Files)
                     _data.Unmatched.Add(file);
             }
+            ScheduleSave();
         }
 
         public List<String> GetAllFiles()
@@ -165,6 +179,7 @@ namespace MyMovies.Core
             {
                 _data.Unmatched.Add(path);
             }
+            ScheduleSave();
         }
 
         public void AddSkipped(string path)
@@ -174,6 +189,7 @@ namespace MyMovies.Core
             {
                 _data.Skipped.Add(path);
             }
+            ScheduleSave();
         }
 
         public void SetTag(String tag, String id, bool del)
@@ -193,6 +209,7 @@ namespace MyMovies.Core
                 }
                     
             }
+            ScheduleSave();
         }
     }
 
