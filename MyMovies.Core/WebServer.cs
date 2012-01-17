@@ -151,7 +151,7 @@ namespace MyMovies.Core
                             else if (file.IsNullOrEmpty())
                                 DM.Instance.UnmatchMovie(id);
                             else
-                                DM.Instance.AddMovie(Scanner.FetchMovie(file, id));
+                                DM.Instance.AddMovie(Scanner.FetchMovie(file, id, true));
                         }
 
                         ReplyJson(response, o, DM.Instance.GetJson());

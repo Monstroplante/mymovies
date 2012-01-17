@@ -25,11 +25,18 @@ namespace Helper
             @"(?<s>\d{1,2})x\d{1,3}",
             @"s(?<s>\d{1,2})",
             @"(season|saison)\W?(?<s>\d{1,2})",
-            @"\s*[-.]\s*(?<s>0?\d)\d\d\b"
+            @"\s*[-.]\s*(?<s>0?\d)\d\d\b",
+            @"(?<s>\d)\d\d",
         }.Join("|")), CompiledIgnoreCase);
         static readonly Regex RegSerialFullPath = new Regex(@"\b((season|saison)\W?(?<s>\d{1,2})|s(?<s>\d{1,2}))\b", CompiledIgnoreCase);
         static readonly Regex RegExtractBeforeKeyword = new Regex(@"^(.+?)" + Keywords, CompiledIgnoreCase);
-        static readonly Regex RegCleanup = new Regex(@"(^[.\-, ]+|[.\-, ]+$|[\.\[\]()_])", CompiledIgnoreCase);
+        static readonly Regex RegCleanup = new Regex("(" + new[]{
+            @"\[.+?\]",
+            @"\(.+?\)",
+            @"^[.\-, ]+",
+            @"[.\-, ]+$",
+            @"[\.\[\]()_]",
+            }.Join("|") + ")", CompiledIgnoreCase);
         static readonly Regex RegCleanup2 = new Regex(@"\s+", CompiledIgnoreCase);
         static readonly Regex RegTeams = new Regex(
             @"\b(aymo|ALLiANCE|CiNEFiLE|REFiNED|LiMiTED|^final|CiRCLE|^aaf|sample|SAMPLE|Sample|DiAMOND|LIMITED|UNRATED|UsaBit\.com)\b", RegexOptions.Compiled);
@@ -136,7 +143,7 @@ namespace Helper
         public static Movie FetchMovie(String file)
         {
             var imdb = new IMDBClient();
-            var f = Scanner.ParseMovieName(file);
+            var f = ParseMovieName(file);
 
             if (f.ShouldBeIgnored || f.GuessedTitle.IsNullOrEmpty())
                 return null;
@@ -145,13 +152,16 @@ namespace Helper
             if (m == null)
                 throw new NoMatchFoundException();
 
-            return FetchMovie(file, m.tconst);
+            return FetchMovie(file, m.tconst, false);
         }
 
-        public static Movie FetchMovie(String file, String imdbId)
+        public static Movie FetchMovie(String file, String imdbId, bool allowUnpopular)
         {
             var imdb = new IMDBClient();
             var m = imdb.GetDetails(imdbId);
+
+            if (!allowUnpopular && m.num_votes < 100)
+                return null;
 
             String cover = null;
             if (m.image != null && !m.image.url.IsNullOrEmpty())

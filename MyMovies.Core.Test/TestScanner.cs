@@ -24,11 +24,11 @@ namespace Test
 
         public static TestResult[] ScanResult1 = new[]{
             new TestResult(true, new MovieInfos("50 First Dates", null, @"\!A ne pas manquer ;o)\50_First_Dates.FRENCH.DVDRip.XViD-LiQUiDE-teste.DivXovore.com-.avi", false, false)),
-            new TestResult(true, new MovieInfos("Crazy Kung-fu Kung Fu Hustle", null, @"\!A ne pas manquer ;o)\Crazy.Kung-fu.(Kung.Fu.Hustle).DVDRip.[H264.He-Aac.{Chi-Fr-Eng}.St{Fr-Eng}.Chaps].mkv", false, false)),
+            new TestResult(true, new MovieInfos("Crazy Kung-fu", null, @"\!A ne pas manquer ;o)\Crazy.Kung-fu.(Kung.Fu.Hustle).DVDRip.[H264.He-Aac.{Chi-Fr-Eng}.St{Fr-Eng}.Chaps].mkv", false, false)),
             new TestResult(true, new MovieInfos("Eternal Sunshine Of The Spotless Mind", null, @"\!A ne pas manquer ;o)\Eternal.Sunshine.Of.The.Spotless.Mind.FRENCH.DVDRip.XViD-EVASION.shared.by.[TFT].avi", false, false)),
             new TestResult(true, new MovieInfos("festen", null, @"\!A ne pas manquer ;o)\festen(divX fr).avi", false, false)),
             new TestResult(true, new MovieInfos("Fighter In The Wind", null, @"\!A ne pas manquer ;o)\Fighter.In.The.Wind.FRENCH.LiMiTED.DVDRip-XViD-KYoKuSHiN.avi", false, false)),
-            new TestResult(true, new MovieInfos("Film Stephen King Drame - Les Evadés The Shawshank Redemption", 1995, @"\!A ne pas manquer ;o)\Film (Stephen King) Drame - Les Evadés (The Shawshank Redemption) Fr Dvd Rip (01 Mars 1995).avi", false, false)),
+            new TestResult(true, new MovieInfos("Film Drame - Les Evadés", 1995, @"\!A ne pas manquer ;o)\Film (Stephen King) Drame - Les Evadés (The Shawshank Redemption) Fr Dvd Rip (01 Mars 1995).avi", false, false)),
             new TestResult(true, new MovieInfos("Hotel Rwanda", null, @"\!A ne pas manquer ;o)\Hotel.Rwanda.avi", false, false)),
             new TestResult(true, new MovieInfos("La Cite de dieu", null, @"\!A ne pas manquer ;o)\La.Cite.de.dieu_DVDRip_FR_divx5.0.teste.divxonweb.fr.st.AVI", false, false)),
             new TestResult(true, new MovieInfos("La Guerre Des Mondes", null, @"\!A ne pas manquer ;o)\La.Guerre.Des.Mondes.FRENCH.DVDRIP-XVID-GRRRR.avi", false, false)),
@@ -61,7 +61,6 @@ namespace Test
             new TestResult(true, new MovieInfos("The Butterfly Effect", 2004, @"\!HD\The.Butterfly.Effect.2004.720p.AC3.5.1.x264-RMZ.avi", false, false)),
             new TestResult(true, new MovieInfos("X-Men 3 The Last Stand", 2006, @"\!HD\X-Men.3.The.Last.Stand.2006.720p.VO.mkv", false, false)),
             new TestResult(true, new MovieInfos("Pink Floyd The Wall", null, @"\[movie]Pink Floyd The Wall (1982)\Pink Floyd The Wall.mkv", false, false)),
-            new TestResult(true, new MovieInfos("XCT Manderlay Lars Von Trier", null, @"\[XCT].Manderlay.(Lars.Von.Trier).DVDRip.[x264.HP+He.Aac.v2{Fr-Eng}+Subs{Fr}+Chaps+Cover].mkv", false, false)),
             new TestResult(true, new MovieInfos("Babel", null, @"\Babel\Babel\Babel.FRENCH.DVDRiP.XviD-BABEL.CD1.avi", false, false)),
             new TestResult(true, new MovieInfos("BRAQUAGE A L'ANGLAISE", null, @"\BRAQUAGE A L'ANGLAISE.FRENCH.DVDRiP.avi", false, false)),
             new TestResult(true, new MovieInfos("How to Train Your Dragon", 2010, @"\How to Train Your Dragon 2010 1080p BRRip H264 AAC - IceBane (Kingdom Release)\How to Train Your Dragon.mp4", false, false)),
@@ -73,7 +72,7 @@ namespace Test
             new TestResult(false, new MovieInfos("La ChuteCD2", null, @"\La Chute (2cd)\La.ChuteCD2.avi", false, false)),
             new TestResult(true, new MovieInfos("La Controverse De Valladolid", null, @"\La Controverse De Valladolid.avi", false, false)),
             new TestResult(true, new MovieInfos("Les Liens Du Sang", null, @"\Les.Liens.Du.Sang.FRENCH.DVDRIP.REPACK.1CD\Les.Liens.Du.Sang.FRENCH.DVDRIP.REPACK.1CD.avi", false, false)),
-            new TestResult(true, new MovieInfos("Nausicaa de la Vallee du Vent Kaze no tani no Naushika", null, @"\Nausicaa.de.la.Vallee.du.Vent.(Kaze.no.tani.no.Naushika).DVDRip.[x264.HP.He-Aac.{Fr-Jpn}+Subs{French}+Chaps+Cover].mkv", false, false)),
+            new TestResult(true, new MovieInfos("Nausicaa de la Vallee du Vent", null, @"\Nausicaa.de.la.Vallee.du.Vent.(Kaze.no.tani.no.Naushika).DVDRip.[x264.HP.He-Aac.{Fr-Jpn}+Subs{French}+Chaps+Cover].mkv", false, false)),
             new TestResult(true, new MovieInfos("Prete Moi Ta Main", null, @"\Prete.Moi.Ta.Main.FRENCH.DVDRip.XviD-MP.avi", false, false)),
             new TestResult(true, new MovieInfos("ROMANZO CRIMINALE", 2006, @"\ROMANZO.CRIMINALE-2006-FRENCH-DVDRIP-XVID-ROMANZO.avi", false, false)),
             new TestResult(true, new MovieInfos("The Sentinel", null, @"\The Sentinel.avi", false, false)),
@@ -81,7 +80,9 @@ namespace Test
             new TestResult(true, new MovieInfos("TROIS COULEURS - BLANC", null, @"\TROIS COULEURS - BLANC.avi", false, false)),
             new TestResult(true, new MovieInfos("Un Prophete", 2009, @"\Un.Prophete.2009.FRENCH.720p.BluRay.x264-FHD\Un.Prophete.2009.FRENCH.720p.BluRay.x264-FHD.mkv", false, false)),
             new TestResult(true, new MovieInfos("X-Men Origins Wolverine", null, @"\X-Men.Origins.Wolverine.720p.nHD.x264-NhaNc3\X-Men.Origins.Wolverine.720p.nHD.x264-NhaNc3.mp4", false, false)),
-            new TestResult(true, new MovieInfos("Babel", null, @"\Babel.FRENCH.DVDRiP.XviD-BABEL.CD2.avi", true, false)),                                                                 
+            new TestResult(true, new MovieInfos("Babel", null, @"\Babel.FRENCH.DVDRiP.XviD-BABEL.CD2.avi", true, false)),
+            new TestResult(true, new MovieInfos("Avatar", null, @"d:\DivX\Séries\Avatar\Livre 3 (vo)\Avatar 308 The Puppetmaster [ThV].avi", false, false)),
+            new TestResult(true, new MovieInfos("Manderlay", null, @"d:\DivX\films\[XCT].Manderlay.(Lars.Von.Trier).DVDRip.[x264.HP+He.Aac.v2{Fr-Eng}+Subs{Fr}+Chaps+Cover].mkv", false, false)),                                       
         };
 
         public static TestResult[] ScanResult2 = new[]{
