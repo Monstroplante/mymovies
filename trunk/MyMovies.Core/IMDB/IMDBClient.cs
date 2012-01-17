@@ -66,7 +66,7 @@ namespace Helper.IMDB
                 .data.results.NoNull().SelectMany(e => e.list)
                 .Where(m => !m.title.IsNullOrEmpty() && !m.tconst.IsNullOrEmpty());
             if (year != null)
-                r = r.OrderBy(m => m.GetYear() == null ? int.MaxValue : Math.Abs((m.GetYear() - year) ?? 0));
+                r = r.OrderBy(m => m.GetYear() == null ? int.MaxValue : Math.Max(1, Math.Abs((m.GetYear() - year) ?? 0)));
             return r.ToList();
         }
 

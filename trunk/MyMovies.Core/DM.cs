@@ -64,6 +64,8 @@ namespace MyMovies.Core
 
         public void AddMovie(Movie movie)
         {
+            if(movie == null)
+                return;
             foreach (var f in movie.Files)
                 RemoveFile(f);
             lock (_data)
