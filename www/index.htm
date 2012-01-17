@@ -4,6 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
+		<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
         <title>My movies</title>
         <script type="text/javascript" src="jquery-1.6.4.min.js"></script>
         <link rel="stylesheet" type="text/css" href="common.css"/>
@@ -81,6 +82,20 @@
 		</div>
         <script type="text/javascript">
             $(function () {
+				if(navigator.appVersion.indexOf("wOSBrowser")>-1){
+					var t, header = $('#header');
+					$(window).scroll(function(){
+						if(t)
+							clearTimeout(t);
+						else
+							header.hide();
+						t = setTimeout(function(){
+							header.fadeIn(800);
+							t = null;
+						}, 500);
+					});
+				}
+			
 				$.fn.m = function(){
 					var e = this;
 					while(e.length){
