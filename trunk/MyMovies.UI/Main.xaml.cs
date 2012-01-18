@@ -23,17 +23,19 @@ using MyMovies.UI;
 
 namespace MyMovies
 {
+
     /// <summary>
     /// Interaction logic for Window1.xaml
     /// </summary>
     public partial class Window1 : Window
     {
+        const string Password = "testpassword";
         DM DM = DM.Instance;
 
         public Window1()
         {
             InitializeComponent();
-            WebServer.Start(8080);
+            WebServer.Start(8080, Password);
             UpdateTitle();
             Log.Listner = (cat, message, level) => {
                 if(level < Log.Level.Info)

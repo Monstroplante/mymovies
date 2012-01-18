@@ -28,6 +28,7 @@ namespace MyMovies.Core
         public static String ScaledDir = Path.Combine(DM.CoverDir, "scaled");
         static Log log = new Log("www");
         private static int Port;
+        private static String Password;
 
         public static bool IsRunning
         {
@@ -47,8 +48,9 @@ namespace MyMovies.Core
             {"js", "application/javascript"}
         };
 
-        static public void Start(int port)
+        static public void Start(int port, String password)
         {
+            Password = password;
             Port = port;
             Stop();
             var scheduler = KayakScheduler.Factory.Create(new SchedulerDelegate());
@@ -96,6 +98,18 @@ namespace MyMovies.Core
             public void OnRequest(HttpRequestHead request, IDataProducer requestBody,
                 IHttpResponseDelegate response)
             {
+                //auth
+                if(Password != null && !request.Headers.Any(kv => (kv.Value ?? "").Contains(Password)))
+                {
+                    if(!request.Uri.Contains(Password))
+                    {
+                        ReplyText(response, "Pas d'accord !", false, null);
+                        return;
+                    }
+                    Redirect(response, request.Uri, new Dictionary<string, string> {{ "Set-Cookie", "auth=" + Password + "; path=/" } });
+                    return;
+                }
+
                 try
                 {
                     log.Info(new[] { request.Method, request.Uri}.Join("\t"));
@@ -233,7 +247,7 @@ namespace MyMovies.Core
                 var ext = (Path.GetExtension(filePath).TrimOrNull() ?? ".").Substring(1).ToLower();
                 String contentType = ContentTypes.GetOrDefault(ext, "text/plain");
 
-                Reply(response, contentType, File.ReadAllBytes(filePath), contentType.StartsWith("image/"), null);
+                Reply(response, contentType, File.ReadAllBytes(filePath), contentType.StartsWith("image/"), null, null);
                 return true;
             }
 
@@ -243,16 +257,16 @@ namespace MyMovies.Core
                 var data = cb.IsNullOrEmpty()
                     ? json
                     : String.Format("{0}({1})", cb, json);
-                Reply(response, "application/x-javascript; charset=utf-8", Encoding.UTF8.GetBytes(data), false, null);
+                Reply(response, "application/x-javascript; charset=utf-8", Encoding.UTF8.GetBytes(data), false, null, null);
             }
 
-            private static void Reply(IHttpResponseDelegate response, String contentType, byte[] data, bool allowCache, String status)
+            private static void Reply(IHttpResponseDelegate response, String contentType, byte[] data, bool allowCache, String status, Dictionary<String, String> headers)
             {
                 var body = new BufferedBody(data);
-                var headers = new Dictionary<string, string>{
-                    { "Content-Type", contentType },
-                    { "Content-Length", body.Length.ToString() },
-                };
+                headers = headers ?? new Dictionary<string, string>();
+                headers["Content-Type"] = contentType;
+                headers["Content-Length"] = body.Length.ToString();
+
                 if (allowCache)
                     headers["Cache-Control"] = "max-age=31556926";
                 response.OnResponse(new HttpResponseHead
@@ -264,7 +278,14 @@ namespace MyMovies.Core
 
             private static void ReplyText(IHttpResponseDelegate response, String data, bool allowCache, String status)
             {
-                Reply(response, "text/plain; charset=utf-8", Encoding.UTF8.GetBytes(data), allowCache, status);
+                Reply(response, "text/plain; charset=utf-8", Encoding.UTF8.GetBytes(data), allowCache, status, null);
+            }
+
+            private static void Redirect(IHttpResponseDelegate response, String location, Dictionary<String, String> headers)
+            {
+                headers = headers ?? new Dictionary<string, string>();
+                headers["Location"] = location;
+                Reply(response, "text/plain; charset=utf-8", Encoding.UTF8.GetBytes("redirect"), false, "302 Found", headers);
             }
         }
 
@@ -288,7 +309,7 @@ namespace MyMovies.Core
 
         public static String GetHomeUrl()
         {
-            return String.Format("http://{0}:{1}", Network.GetLocalIp(), Port);
+            return String.Format("http://{0}:{1}?{2}", Network.GetLocalIp(), Port, Password);
         }
 
         public class SearchImdb
