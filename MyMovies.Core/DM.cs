@@ -16,7 +16,7 @@ namespace MyMovies.Core
         private static DM instance;
         private readonly DataBase _data;
         private readonly String _dataFile = GetLocalFilePath("data.json");
-        public static String CoverDir = DM.GetLocalFilePath("covers");
+        public static String CoverDir = GetLocalFilePath("covers");
         private Log log = new Log("DM");
 
         public static String GetLocalFilePath(params String[] path)
@@ -33,7 +33,7 @@ namespace MyMovies.Core
         {
             if (File.Exists(_dataFile))
             {
-                using (Stream s = File.OpenRead(@"C:\Users\Tom\projects\MyMovies\trunk\MyMovies.UI\bin\Debug\data.json"))
+                using (Stream s = File.OpenRead(_dataFile))
                 {
                     var serializer = new Serializer(typeof (DataBase));
                     serializer.Config.MissingPropertyAction = MissingPropertyOptions.Ignore;
