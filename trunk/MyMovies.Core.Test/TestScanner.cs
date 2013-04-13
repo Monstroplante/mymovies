@@ -180,7 +180,13 @@ namespace Test
             new TestResult(true, new MovieInfos("Dragonball Kai", null, @"d:\divx\Séries\Dragonball.Kai.720p.1-97.Complete\10 [SD&Taka]_Dragonball_Kai_-_010_[720p][A94250EB].mkv", false, false)), 
         };
 
-        public TestResult[][] ScanResults = new[]{ScanResult1, ScanResult2};
+        public static TestResult[] ScanResult3 = new[]{
+            new TestResult(true, new MovieInfos("The Cove - La Baie De La Honte - KT2", null, @"E:\torrent\docus\The_Cove_-_La_Baie_De_La_Honte_-_2009-KT2\The Cove - La Baie De La Honte - KT2.avi", false, false)),
+            new TestResult(true, new MovieInfos("Scènes de ménages", null, @"E:\torrent\Scènes de ménages - Saison 1 - Épisodes 01 à 50 [2009]\Épisode 05.avi", false, false)),
+        };
+
+
+        public static TestResult[][] ScanResults = new[] { ScanResult1, ScanResult2, ScanResult3 };
 
         public class FileToTite
         {
@@ -199,16 +205,11 @@ namespace Test
         [Test]
         public void TestScanFiles()
         {
-            foreach (var scanResult in ScanResults)
+            foreach (var e in ScanResults.SelectMany(o => o).Where(o => o.Ok))
             {
-                foreach (var expected in scanResult)
-                {
-                    var e = expected;
-                    var result = Scanner.ParseMovieName(expected.Movie.Path);
-                    if (expected.Ok)
-                        AssertMovieInfosEquals(expected.Movie, result);
-
-                } 
+                AssertMovieInfosEquals(
+                    e.Movie,
+                    Scanner.ParseMovieName(e.Movie.Path));
             }
         }
 
