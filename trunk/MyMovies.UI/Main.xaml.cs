@@ -47,13 +47,6 @@ namespace MyMovies
             tbDirectories.Text = DM.Config.PathToScan.Join("\n");
         }
 
-        private void BtScan_Click(object sender, RoutedEventArgs e)
-        {
-            if (!UpdateSettings())
-                return;
-            new StartScan().Show();
-        }
-
         protected override void OnClosed(EventArgs e)
         {
             WebServer.Stop();
