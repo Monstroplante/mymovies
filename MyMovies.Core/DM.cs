@@ -16,8 +16,10 @@ namespace MyMovies.Core
         private static DM instance;
         private readonly DataBase _data;
         private readonly String _dataFile = GetLocalFilePath("data.json");
+        private readonly String _configFile = GetLocalFilePath("config.json");
         public static String CoverDir = GetLocalFilePath("covers");
         private Log log = new Log("DM");
+        public Config Config { get; private set; }
 
         public static String GetLocalFilePath(params String[] path)
         {
@@ -31,19 +33,29 @@ namespace MyMovies.Core
 
         private DM()
         {
-            if (File.Exists(_dataFile))
+            _data = DeserializeFile<DataBase>(_dataFile) ?? new DataBase();
+            Config = DeserializeFile<Config>(_configFile) ?? new Config();
+        }
+
+        public void SaveConfig()
+        {
+            var serializer = new Serializer(typeof(Config));
+            File.WriteAllText(
+                _configFile,
+                serializer.Serialize(Config),
+                Encoding.UTF8);
+        }
+
+        public T DeserializeFile<T>(String path) where T:class
+        {
+            if (!File.Exists(path))
+                return null;
+            using (Stream s = File.OpenRead(path))
             {
-                using (Stream s = File.OpenRead(_dataFile))
-                {
-                    var serializer = new Serializer(typeof (DataBase));
-                    serializer.Config.MissingPropertyAction = MissingPropertyOptions.Ignore;
-                    serializer.Config.IgnoredPropertyAction = SerializationContext.IgnoredPropertyOption.SetIfPossible;
-                    _data = (DataBase)serializer.Deserialize(s);
-                }
-            }
-            else
-            {
-                _data = new DataBase();
+                var serializer = new Serializer(typeof (T));
+                serializer.Config.MissingPropertyAction = MissingPropertyOptions.Ignore;
+                serializer.Config.IgnoredPropertyAction = SerializationContext.IgnoredPropertyOption.SetIfPossible;
+                return (T) serializer.Deserialize(s);
             }
         }
 
@@ -52,7 +64,7 @@ namespace MyMovies.Core
         {
             if (_saveTimer != null)
                 _saveTimer.Dispose();
-            _saveTimer = new Timer(new TimerCallback(o => Save()), null, 10000, Timeout.Infinite);
+            _saveTimer = new Timer(o => Save(), null, 10000, Timeout.Infinite);
         }
 
         public void Save()
@@ -211,6 +223,11 @@ namespace MyMovies.Core
             }
             ScheduleSave();
         }
+    }
+
+    public class Config
+    {
+        public List<String> PathToScan = new List<string>();
     }
 
     public class DataBase
