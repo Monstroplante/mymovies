@@ -40,6 +40,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\deps\NDesk.Options.dll</HintPath>
     </Reference>
+    <Reference Include="OSDBnet">
+      <HintPath>..\packages\OSDBnet.0.2\lib\net40\OSDBnet.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -52,6 +55,9 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="TMDbLib">
+      <HintPath>..\packages\TMDbLib.0.7.4\lib\net40\TMDbLib.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />

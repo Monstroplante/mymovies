@@ -412,6 +412,11 @@ namespace System.Collections.Generic
 
     public static class ExtIEnumerable
     {
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> e)
+        {
+            return new HashSet<T>(e);
+        }
+
         public static IList<T> Shuffle<T>(this IEnumerable<T> e)
         {
             var r = new Random();

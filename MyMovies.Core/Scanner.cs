@@ -136,6 +136,10 @@ namespace Helper
             s = RegKeywords.Replace(s, "");
             s = RegCleanup.Replace(s, " ");
             s = RegCleanup2.Replace(s, " ");
+
+            //Replace strange accents
+            s = s.Replace("è", "è");
+            s = s.Replace("é", "é");
             return s.Trim();
         }
 
