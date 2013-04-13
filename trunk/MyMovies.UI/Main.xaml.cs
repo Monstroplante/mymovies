@@ -44,10 +44,13 @@ namespace MyMovies
                 tbLog.ScrollToEnd();                 
             };
             btWeb.Content = WebServer.GetHomeUrl();
+            tbDirectories.Text = DM.Config.PathToScan.Join("\n");
         }
 
         private void BtScan_Click(object sender, RoutedEventArgs e)
         {
+            if (!UpdateSettings())
+                return;
             new StartScan().Show();
         }
 
@@ -58,21 +61,38 @@ namespace MyMovies
             base.OnClosed(e);
         }
 
-        private void button1_Click(object sender, RoutedEventArgs e)
+        /// <returns>success</returns>
+        private bool UpdateSettings()
         {
-            var scanLog = new Log("scan");
-            var directories = tbDirectories.Text.Split('\n')
+            var pathsToScan = tbDirectories.Text.Split('\n')
                 .Select(s => s.TrimOrNull())
                 .Where(s => s != null)
-                .ToArray();
-            if(directories.Length < 1)
+                .ToList();
+
+            foreach (var p in pathsToScan.Where(p => !Directory.Exists(p)))
+            {
+                MessageBox.Show(String.Format("Directory '{0}' does not exists", p));
+                return false;
+            }
+
+            DM.Config.PathToScan = pathsToScan;
+            DM.SaveConfig();
+            return true;
+        }
+
+        private void button1_Click(object sender, RoutedEventArgs e)
+        {
+            if (!UpdateSettings())
+                return;
+            var scanLog = new Log("scan");
+            if(DM.Config.PathToScan.Count < 1)
             {
                 scanLog.Warn("No directory to scan.");
                 return;
             }
                 
             var w = Reactor.Run(
-                directories,
+                DM.Config.PathToScan,
                 dirs => {
                     scanLog.Info("Scan started!");
 
