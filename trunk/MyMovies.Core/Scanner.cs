@@ -33,6 +33,7 @@ namespace Helper
         static readonly Regex RegExtractBeforeKeyword = new Regex(@"^(.+?)" + Keywords, CompiledIgnoreCase);
         static readonly Regex RegCleanup = new Regex("(" + new[]{
             @"\[.+?\]",
+            @"\{.+?\}",
             @"\(.+?\)",
             @"^[.\-, ]+",
             @"[.\-, ]+$",
@@ -174,7 +175,7 @@ namespace Helper
             var imdb = new IMDBClient();
             var m = imdb.GetDetails(imdbId);
 
-            if (!allowUnpopular && m.num_votes < 100)
+            if (!allowUnpopular && m.num_votes < 50)
                 throw new NoMatchFoundException();
 
             String cover = null;
