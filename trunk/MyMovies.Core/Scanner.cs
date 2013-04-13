@@ -79,6 +79,9 @@ namespace Helper
             if(m.Success)
             {
                 f = m.Groups["n"].Value;
+                m = RegSerial.Match(f);
+                if (m.Success)
+                    f = m.Groups[1].Value;
             }
             else
             {
@@ -175,7 +178,7 @@ namespace Helper
             var imdb = new IMDBClient();
             var m = imdb.GetDetails(imdbId);
 
-            if (!allowUnpopular && m.num_votes < 50)
+            if (!allowUnpopular && m.num_votes < 30)
                 throw new NoMatchFoundException();
 
             String cover = null;
