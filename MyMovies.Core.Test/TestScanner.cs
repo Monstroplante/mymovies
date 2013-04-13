@@ -184,6 +184,7 @@ namespace Test
             new TestResult(true, new MovieInfos("The Cove - La Baie De La Honte - KT2", null, @"E:\torrent\docus\The_Cove_-_La_Baie_De_La_Honte_-_2009-KT2\The Cove - La Baie De La Honte - KT2.avi", false, false)),
             new TestResult(true, new MovieInfos("Scènes de ménages", null, @"E:\torrent\Scènes de ménages - Saison 1 - Épisodes 01 à 50 [2009]\Épisode 05.avi", false, false)),
             new TestResult(true, new MovieInfos("The Avatar - Sozen's Comet - Finale", null, @"D:\Séries\Avatar\Livre 3 (vo)\The Avatar - Sozen's Comet - Finale {C_P}.avi", false, false)), 
+            new TestResult(true, new MovieInfos("Dexter", null, @"D:\Séries\Dexter\Dexter S07E07 Season 7 Episode 7 HDTV x264 [GlowGaze]\Dexter - 7x07 - Chemistry.HDTV.fr.mp4", false, false)), 
         };
 
 
